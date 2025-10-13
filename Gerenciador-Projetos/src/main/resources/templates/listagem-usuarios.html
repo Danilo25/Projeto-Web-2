@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Usuários</title>
+</head>
+<body>
+    <h1>Usuários Cadastrados</h1>
+
+    <form th:action="@{/usuarios}" method="get">
+        <input type="text" name="nome" placeholder="Pesquisar por nome...">
+        <button type="submit">Pesquisar</button>
+    </form>
+    <br>
+
+    <a th:href="@{/usuarios/novo}">Cadastrar Novo Usuário</a>
+    <br><br>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Cargo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="usuario : ${usuarios}">
+                <td th:text="${usuario.id}">1</td>
+                <td th:text="${usuario.nome}">Nome do Usuário</td>
+                <td th:text="${usuario.email}">email@exemplo.com</td>
+                <td th:text="${usuario.cargo}">Cargo do Usuário</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
