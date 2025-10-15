@@ -1,9 +1,15 @@
 package br.com.ufrn.imd.Gerenciador_Projetos.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Usuario {
@@ -16,6 +22,10 @@ public class Usuario {
     private String email;
     private String senha;
     private String cargo;
+
+    @ManyToMany(mappedBy = "usuarios")
+    @JsonIgnore
+    private Set<Equipe> equipes = new HashSet<>();
 
     public Usuario() {
     }
@@ -58,5 +68,13 @@ public class Usuario {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public Set<Equipe> getEquipes() {
+        return equipes;
+    }
+
+    public void setEquipes(Set<Equipe> equipes) {
+        this.equipes = equipes;
     }
 }

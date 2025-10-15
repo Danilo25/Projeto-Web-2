@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Equipe</title>
+    <style>
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Nova Equipe</h1>
+
+    <form th:action="@{/equipes/salvar}" th:object="${equipe}" method="post">
+        <div>
+            <label for="nome">Nome da Equipe:</label>
+            <input type="text" id="nome" th:field="*{nome}" required>
+        </div>
+        <div>
+            <label for="descricao">Descrição:</label>
+            <input type="text" id="descricao" th:field="*{descricao}">
+        </div>
+
+        <hr>
+
+        <h2>Membros da Equipe</h2>
+        <div id="membros-selecionados">
+            </div>
+        <button type="button" id="btn-abrir-modal">Adicionar Membro</button>
+        <br><br>
+        <button type="submit">Salvar Equipe</button>
+    </form>
+
+    <div id="modal-pesquisa-usuario" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Pesquisar Usuário</h2>
+            <input type="text" id="input-pesquisa-usuario" placeholder="Digite o nome do usuário...">
+            <button type="button" id="btn-pesquisar-usuario">Pesquisar</button>
+            <hr>
+            <div id="resultado-pesquisa"></div>
+        </div>
+    </div>
+
+    <script>
+        const btnAbrirModal = document.getElementById('btn-abrir-modal');
+        const modal = document.getElementById('modal-pesquisa-usuario');
+        const spanClose = document.getElementsByClassName("close")[0];
+        const btnPesquisar = document.getElementById('btn-pesquisar-usuario');
+        const inputPesquisa = document.getElementById('input-pesquisa-usuario');
+        const resultadoPesquisaDiv = document.getElementById('resultado-pesquisa');
+        const membrosSelecionadosDiv = document.getElementById('membros-selecionados');
+        const form = document.querySelector('form');
+
+        let membrosAdicionados = new Set();
+
+        btnAbrirModal.onclick = () => modal.style.display = "block";
+        spanClose.onclick = () => modal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        btnPesquisar.onclick = async () => {
+            const nome = inputPesquisa.value;
+            if (nome.length < 2) {
+                resultadoPesquisaDiv.innerHTML = "Digite pelo menos 2 caracteres.";
+                return;
+            }
+            const response = await fetch(`/api/usuarios/search?nome=${nome}`);
+            const usuarios = await response.json();
+            renderResultados(usuarios);
+        };
+
+        function renderResultados(usuarios) {
+            resultadoPesquisaDiv.innerHTML = '';
+            if (usuarios.length === 0) {
+                resultadoPesquisaDiv.innerHTML = 'Nenhum usuário encontrado.';
+                return;
+            }
+            const table = document.createElement('table');
+            table.innerHTML = `<thead><tr><th>Nome</th><th>Email</th><th>Ação</th></tr></thead>`;
+            const tbody = document.createElement('tbody');
+            usuarios.forEach(usuario => {
+                if (!membrosAdicionados.has(usuario.id.toString())) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${usuario.nome}</td><td>${usuario.email}</td>`;
+                    const addButton = document.createElement('button');
+                    addButton.textContent = 'Adicionar';
+                    addButton.type = 'button';
+                    addButton.onclick = () => adicionarMembro(usuario);
+                    const tdAction = document.createElement('td');
+                    tdAction.appendChild(addButton);
+                    tr.appendChild(tdAction);
+                    tbody.appendChild(tr);
+                }
+            });
+            table.appendChild(tbody);
+            resultadoPesquisaDiv.appendChild(table);
+        }
+        
+        function adicionarMembro(usuario) {
+            if (membrosAdicionados.has(usuario.id.toString())) return;
+
+            membrosAdicionados.add(usuario.id.toString());
+            
+            const divMembro = document.createElement('div');
+            divMembro.id = `membro-${usuario.id}`;
+            divMembro.innerHTML = `<span>${usuario.nome} (${usuario.email})</span>`;
+            
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remover';
+            removeButton.type = 'button';
+            removeButton.onclick = () => removerMembro(usuario.id);
+            
+            divMembro.appendChild(removeButton);
+            membrosSelecionadosDiv.appendChild(divMembro);
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'usuarios';
+            hiddenInput.value = usuario.id;
+            hiddenInput.id = `input-membro-${usuario.id}`;
+            form.appendChild(hiddenInput);
+
+            inputPesquisa.value = '';
+            resultadoPesquisaDiv.innerHTML = '';
+            modal.style.display = "none";
+        }
+
+        function removerMembro(usuarioId) {
+            membrosAdicionados.delete(usuarioId.toString());
+
+            const divMembro = document.getElementById(`membro-${usuarioId}`);
+            if(divMembro) divMembro.remove();
+
+            const hiddenInput = document.getElementById(`input-membro-${usuarioId}`);
+            if(hiddenInput) hiddenInput.remove();
+        }
+
+    </script>
+</body>
+</html>
