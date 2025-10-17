@@ -1,15 +1,15 @@
-package br.com.ufrn.imd.Gerenciador_Projetos.model;
+package br.com.ufrn.imd.Project_Manager.model;
 
 import jakarta.persistence.*;
 
 @Entity
-public class Etiqueta {
+public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String name;
 
     public Long getId() {
         return id;
@@ -19,13 +19,11 @@ public class Etiqueta {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
-    
-    
 }

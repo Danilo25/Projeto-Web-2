@@ -7,13 +7,15 @@
 <body>
     <h1>Usuários Cadastrados</h1>
 
-    <form th:action="@{/usuarios}" method="get">
-        <input type="text" name="nome" placeholder="Pesquisar por nome...">
+    <form th:action="@{/users}" method="get">
+        <label>
+            <input type="text" name="nome" placeholder="Pesquisar por nome...">
+        </label>
         <button type="submit">Pesquisar</button>
     </form>
     <br>
 
-    <a th:href="@{/usuarios/novo}">Cadastrar Novo Usuário</a>
+    <a th:href="@{/users/register}">Cadastrar Novo Usuário</a>
     <br><br>
 
     <table border="1">
@@ -26,11 +28,11 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="usuario : ${usuarios}">
-                <td th:text="${usuario.id}">1</td>
-                <td th:text="${usuario.nome}">Nome do Usuário</td>
-                <td th:text="${usuario.email}">email@exemplo.com</td>
-                <td th:text="${usuario.cargo}">Cargo do Usuário</td>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+                <td th:text="${user.name}">Nome do Usuário</td>
+                <td th:text="${user.email}">email@exemplo.com</td>
+                <td th:text="${user.position}">Cargo do Usuário</td>
             </tr>
         </tbody>
     </table>
