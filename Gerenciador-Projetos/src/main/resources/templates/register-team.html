@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Equipe</title>
+    <style>
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Nova Equipe</h1>
+
+    <form th:action="@{/teams/save}" th:object="${team}" method="post">
+        <div>
+            <label for="name">Nome da Equipe:</label>
+            <input type="text" id="name" th:field="*{name}" required>
+        </div>
+        <div>
+            <label for="description">Descrição:</label>
+            <input type="text" id="description" th:field="*{description}">
+        </div>
+
+        <hr>
+
+        <h2>Membros da Equipe</h2>
+        <div id="selected-members">
+            </div>
+        <button type="button" id="btn-open-modal">Adicionar Membro</button>
+        <br><br>
+        <button type="submit">Salvar Equipe</button>
+    </form>
+
+    <div id="modal-research-user" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Pesquisar Usuário</h2>
+            <label for="input-research-user"></label><input type="text" id="input-research-user" placeholder="Digite o nome do usuário...">
+            <button type="button" id="btn-research-user">Pesquisar</button>
+            <hr>
+            <div id="result-research"></div>
+        </div>
+    </div>
+
+    <script>
+        const btnOpenModal = document.getElementById('btn-open-modal');
+        const modal = document.getElementById('modal-research-user');
+        const spanClose = document.getElementsByClassName("close")[0];
+        const btnResearch = document.getElementById('btn-research-user');
+        const inputResearch = document.getElementById('input-research-user');
+        const divResultResearch = document.getElementById('result-research');
+        const divSelectedMembers = document.getElementById('selected-members');
+        const form = document.querySelector('form');
+
+        let addedMembers = new Set();
+
+        btnOpenModal.onclick = () => modal.style.display = "block";
+        spanClose.onclick = () => modal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        btnResearch.onclick = async () => {
+            const name = inputResearch.value;
+            if (name.length < 2) {
+                divResultResearch.innerHTML = "Digite pelo menos 2 caracteres.";
+                return;
+            }
+            const response = await fetch(`/api/users/search?name=${name}`);
+            const users = await response.json();
+            renderResults(users);
+        };
+
+        function renderResults(users) {
+            divResultResearch.innerHTML = '';
+            if (users.length === 0) {
+                divResultResearch.innerHTML = 'Nenhum usuário encontrado.';
+                return;
+            }
+            const table = document.createElement('table');
+            table.innerHTML = `<thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>`;
+            const tbody = document.createElement('tbody');
+            users.forEach(user => {
+                if (!addedMembers.has(user.iD.toString())) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${user.name}</td><td>${user.email}</td>`;
+                    const addButton = document.createElement('button');
+                    addButton.textContent = 'Adicionar';
+                    addButton.type = 'button';
+                    addButton.onclick = () => addMember(user);
+                    const tdAction = document.createElement('td');
+                    tdAction.appendChild(addButton);
+                    tr.appendChild(tdAction);
+                    tbody.appendChild(tr);
+                }
+            });
+            table.appendChild(tbody);
+            divResultResearch.appendChild(table);
+        }
+        
+        function addMember(user) {
+            if (addedMembers.has(user.id.toString())) return;
+
+            addedMembers.add(user.id.toString());
+            
+            const divMember = document.createElement('div');
+            divMember.id = `member-${user.id}`;
+            divMember.innerHTML = `<span>${user.name} (${user.email})</span>`;
+            
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remover';
+            removeButton.type = 'button';
+            removeButton.onclick = () => removeMember(user.id);
+            
+            divMember.appendChild(removeButton);
+            divSelectedMembers.appendChild(divMember);
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'users';
+            hiddenInput.value = user.id;
+            hiddenInput.id = `input-member-${user.id}`;
+            form.appendChild(hiddenInput);
+
+            inputResearch.value = '';
+            divResultResearch.innerHTML = '';
+            modal.style.display = "none";
+        }
+
+        function removeMember(userID) {
+            addedMembers.delete(userID.toString());
+
+            const divMember = document.getElementById(`member-${userID}`);
+            if(divMember) divMember.remove();
+
+            const hiddenInput = document.getElementById(`input-member-${userID}`);
+            if(hiddenInput) hiddenInput.remove();
+        }
+    </script>
+</body>
+</html>

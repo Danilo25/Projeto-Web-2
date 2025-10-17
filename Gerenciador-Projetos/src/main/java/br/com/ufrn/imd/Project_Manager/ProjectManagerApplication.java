@@ -1,13 +1,13 @@
-package br.com.ufrn.imd.Gerenciador_Projetos;
+package br.com.ufrn.imd.Project_Manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GerenciadorProjetosApplication {
+public class ProjectManagerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GerenciadorProjetosApplication.class, args);
+		SpringApplication.run(ProjectManagerApplication.class, args);
 	}
 
 }
