@@ -1,5 +1,6 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
+import br.com.ufrn.imd.Project_Manager.dtos.TagRequest;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,14 @@ public class Tag {
     private Long id;
 
     private String name;
+
+    public Tag(TagRequest tagRequest) {
+        this.name = tagRequest.name();
+    }
+
+    public Tag() {
+
+    }
 
     public Long getId() {
         return id;
