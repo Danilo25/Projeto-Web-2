@@ -1,9 +1,17 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
+import br.com.ufrn.imd.Project_Manager.dtos.CommentRequest;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
+@NoArgsConstructor
 public class Comment {
 
     @Id
@@ -21,45 +29,8 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Long getId() {
-        return id;
+    public Comment(CommentRequest commentRequest){
+        this.text = commentRequest.text();
+        this.createdAt = commentRequest.createdAt();
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Task getTask() {
-        return task;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    
 }
