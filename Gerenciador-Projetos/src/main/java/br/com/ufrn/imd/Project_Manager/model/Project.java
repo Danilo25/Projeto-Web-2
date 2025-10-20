@@ -24,6 +24,18 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Frame> frames;
 
+    public Project() {
+    }
+
+    public Project(String name, String description, LocalDate initialDate, LocalDate finalDate, String status, Team team) {
+        this.name = name;
+        this.description = description;
+        this.initialDate = initialDate;
+        this.finalDate = finalDate;
+        this.status = status;
+        this.team = team;
+    }
+
     public Long getId() {
         return id;
     }
