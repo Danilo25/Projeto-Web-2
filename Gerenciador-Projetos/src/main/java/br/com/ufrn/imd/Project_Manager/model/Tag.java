@@ -2,8 +2,14 @@ package br.com.ufrn.imd.Project_Manager.model;
 
 import br.com.ufrn.imd.Project_Manager.dtos.TagRequest;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
+@NoArgsConstructor
 public class Tag {
 
     @Id
@@ -14,25 +20,5 @@ public class Tag {
 
     public Tag(TagRequest tagRequest) {
         this.name = tagRequest.name();
-    }
-
-    public Tag() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

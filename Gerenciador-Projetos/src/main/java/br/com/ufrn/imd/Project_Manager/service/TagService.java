@@ -20,10 +20,10 @@ public class TagService {
     private TaskRepository taskRepository;
      */
 
-    public TagResponse findByName(String tagName) {
-        Tag foundTag = this.tagRepository.findByNameIgnoreCase(tagName).orElseThrow(() -> new RuntimeException("Não Encontrado!"));
+    public List<TagResponse> findByName(String tagName) {
+       List<Tag> tags = this.tagRepository.findByNameIgnoreCase(tagName);
 
-        return new TagResponse(foundTag.getId(), foundTag.getName());
+       return tags.stream().map(e -> new TagResponse(e.getId(), e.getName())).toList();
     }
 
     public List<TagResponse> listAllTags(){
@@ -36,7 +36,11 @@ public class TagService {
 
     @Transactional
     public TagResponse createTag(TagRequest data) {
-        tagRepository.findByNameIgnoreCase(data.name()).ifPresent(e -> {throw  new RuntimeException("Já Existe!");});
+        boolean exists = this.tagRepository.existsByNameIgnoreCase(data.name());
+        if(exists){
+            throw new RuntimeException("Already exists!");
+        }
+
         Tag newTag = new Tag(data);
         this.saveTag(newTag);
 
@@ -44,8 +48,8 @@ public class TagService {
     }
 
     @Transactional
-    public TagResponse updateTag(String tagName, TagRequest data) {
-        Tag foundTag = this.tagRepository.findByNameIgnoreCase(tagName).orElseThrow(() -> new RuntimeException("Não Encontrado!"));
+    public TagResponse updateTag(Long id, TagRequest data) {
+        Tag foundTag = this.tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Tag not found!"));
 
         foundTag.setName(data.name());
         this.saveTag(foundTag);
@@ -54,8 +58,8 @@ public class TagService {
     }
 
     @Transactional
-    public void deleteTag(String tagName) {
-        Tag foundTag = this.tagRepository.findByNameIgnoreCase(tagName).orElseThrow(() -> new RuntimeException("Não Encontrado!"));
+    public void deleteTag(Long id) {
+        Tag foundTag = this.tagRepository.findById(id).orElseThrow(() -> new RuntimeException("Tag not found!"));
         this.tagRepository.delete(foundTag);
     }
 
