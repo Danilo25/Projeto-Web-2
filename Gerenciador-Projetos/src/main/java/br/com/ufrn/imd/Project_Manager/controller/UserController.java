@@ -19,16 +19,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public String listUsers(@RequestParam(required = false) String name, Model model) {
-        model.addAttribute("users", userService.searchUserByName(name));
-        return "listing-users";
-    }
-
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("user", new User());
-        return "register-user";
+        return "users/register";
     }
 
 }
