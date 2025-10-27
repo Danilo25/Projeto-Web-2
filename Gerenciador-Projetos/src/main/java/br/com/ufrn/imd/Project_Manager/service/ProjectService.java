@@ -2,8 +2,10 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.ProjectRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.ProjectResponse;
+import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.model.Team;
+import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
 import br.com.ufrn.imd.Project_Manager.repository.ProjectRepository;
 import br.com.ufrn.imd.Project_Manager.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class ProjectService {
     @Autowired
     private TeamRepository teamRepository;
 
+    @Autowired
+    private FrameRepository frameRepository;
+
     public List<ProjectResponse> findByName(String projectName) {
         List<Project> projects = this.projectRepository.findByNameIgnoreCase(projectName);
 
@@ -31,7 +36,8 @@ public class ProjectService {
                 e.getInitialDate(),
                 e.getFinalDate(),
                 e.getStatus(),
-                e.getTeam().getId()
+                e.getTeam().getId(),
+                e.getFrames().stream().map(Frame::getId).toList()
         )).toList();
     }
 
@@ -46,7 +52,8 @@ public class ProjectService {
                 project.getInitialDate(),
                 project.getFinalDate(),
                 project.getStatus(),
-                project.getTeam().getId()
+                project.getTeam().getId(),
+                project.getFrames().stream().map(Frame::getId).toList()
         );
     }
 
@@ -58,7 +65,8 @@ public class ProjectService {
                 e.getInitialDate(),
                 e.getFinalDate(),
                 e.getStatus(),
-                e.getTeam().getId()
+                e.getTeam().getId(),
+                e.getFrames().stream().map(Frame::getId).toList()
         )).toList();
     }
 
@@ -85,7 +93,8 @@ public class ProjectService {
                 savedProject.getInitialDate(),
                 savedProject.getFinalDate(),
                 savedProject.getStatus(),
-                savedProject.getTeam().getId()
+                savedProject.getTeam().getId(),
+                savedProject.getFrames().stream().map(Frame::getId).toList()
         );
     }
 
@@ -125,7 +134,8 @@ public class ProjectService {
                 updatedProject.getInitialDate(),
                 updatedProject.getFinalDate(),
                 updatedProject.getStatus(),
-                updatedProject.getTeam().getId()
+                updatedProject.getTeam().getId(),
+                updatedProject.getFrames().stream().map(Frame::getId).toList()
         );
     }
 
@@ -137,9 +147,59 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addFrameToProject(){}
+    public ProjectResponse addFrameToProject(Long projectId, Long frameId) {
+        Project project = this.projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found!"));
+
+        Frame frame = this.frameRepository.findById(frameId)
+                .orElseThrow(() -> new RuntimeException("Frame not found!"));
+
+        if (frame.getProject() == null) {
+            frame.setProject(project);
+            this.frameRepository.save(frame);
+
+            Project updatedProject = this.projectRepository.findById(projectId).get();
+            return new ProjectResponse(
+                    updatedProject.getId(),
+                    updatedProject.getName(),
+                    updatedProject.getDescription(),
+                    updatedProject.getInitialDate(),
+                    updatedProject.getFinalDate(),
+                    updatedProject.getStatus(),
+                    updatedProject.getTeam().getId(),
+                    updatedProject.getFrames().stream().map(Frame::getId).toList()
+            );
+        } else {
+            throw new RuntimeException("Frame is already associated with a project!");
+        }
+    }
 
     @Transactional
-    public void removeFrameFromProject(){}
+    public ProjectResponse removeFrameFromProject(Long projectId, Long frameId){
+        Project project = this.projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found!"));
+
+        Frame frame = this.frameRepository.findById(frameId)
+                .orElseThrow(() -> new RuntimeException("Frame not found!"));
+
+        if (frame.getProject() != null && frame.getProject().getId().equals(project.getId())) {
+            frame.setProject(null);
+            this.frameRepository.save(frame);
+
+            Project updatedProject = this.projectRepository.findById(projectId).get();
+            return new ProjectResponse(
+                    updatedProject.getId(),
+                    updatedProject.getName(),
+                    updatedProject.getDescription(),
+                    updatedProject.getInitialDate(),
+                    updatedProject.getFinalDate(),
+                    updatedProject.getStatus(),
+                    updatedProject.getTeam().getId(),
+                    updatedProject.getFrames().stream().map(Frame::getId).toList()
+            );
+        } else {
+            throw new RuntimeException("Frame is not associated with the specified project!");
+        }
+    }
 
 }

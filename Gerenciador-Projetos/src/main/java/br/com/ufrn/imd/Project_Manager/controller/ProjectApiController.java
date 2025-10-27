@@ -52,4 +52,15 @@ public class ProjectApiController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{projectId}/add-frame/{frameId}")
+    public ResponseEntity<ProjectResponse> addFrameToProject(@PathVariable Long projectId, @PathVariable Long frameId) {
+        ProjectResponse updatedProject = projectService.addFrameToProject(projectId, frameId);
+        return ResponseEntity.ok().body(updatedProject);
+    }
+
+    @PutMapping("/{projectId}/remove-frame/{frameId}")
+    public ResponseEntity<ProjectResponse> removeFrameFromProject(@PathVariable Long projectId, @PathVariable Long frameId) {
+        ProjectResponse updatedProject = projectService.removeFrameFromProject(projectId, frameId);
+        return ResponseEntity.ok().body(updatedProject);
+    }
 }
