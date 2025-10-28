@@ -4,6 +4,7 @@ import br.com.ufrn.imd.Project_Manager.dtos.FrameRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.FrameResponse;
 import br.com.ufrn.imd.Project_Manager.service.FrameService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,10 +35,10 @@ public class FrameApiController {
         return ResponseEntity.ok().body(frames);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping
     public ResponseEntity<FrameResponse> createFrame(@RequestBody FrameRequest frame) {
         FrameResponse newFrame = frameService.createFrame(frame);
-        return ResponseEntity.ok().body(newFrame);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newFrame);
     }
 
     @PatchMapping("/{id}")

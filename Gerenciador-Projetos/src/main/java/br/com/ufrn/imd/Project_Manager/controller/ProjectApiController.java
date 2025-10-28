@@ -4,6 +4,7 @@ import br.com.ufrn.imd.Project_Manager.dtos.ProjectRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.ProjectResponse;
 import br.com.ufrn.imd.Project_Manager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class ProjectApiController {
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest project) {
         ProjectResponse newProject = projectService.createProject(project);
-        return ResponseEntity.ok().body(newProject);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProject);
     }
 
     @PatchMapping("/{id}")
