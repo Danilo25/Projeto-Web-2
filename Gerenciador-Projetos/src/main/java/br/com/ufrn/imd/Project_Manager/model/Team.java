@@ -24,8 +24,8 @@ public class Team {
     @ManyToMany
     @JoinTable(
         name = "team_user",
-        joinColumns = @JoinColumn(name = "team_iD"),
-        inverseJoinColumns = @JoinColumn(name = "user_iD")
+        joinColumns = @JoinColumn(name = "team_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> users = new HashSet<>();
     
