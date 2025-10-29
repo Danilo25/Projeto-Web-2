@@ -14,11 +14,25 @@ public class Frame {
     private Integer orderIndex;
 
     @ManyToOne
-    @JoinColumn(name = "project_iD", nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
 
     @OneToMany(mappedBy = "frame", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
+
+    public Frame() {
+    }
+
+    public Frame(String name, Integer orderIndex) {
+        this.name = name;
+        this.orderIndex = orderIndex;
+    }
+
+    public Frame(String name, Integer orderIndex, Project project) {
+        this.name = name;
+        this.orderIndex = orderIndex;
+        this.project = project;
+    }
 
     public Long getId() {
         return id;

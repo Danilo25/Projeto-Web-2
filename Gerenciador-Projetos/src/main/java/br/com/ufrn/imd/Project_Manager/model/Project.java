@@ -21,7 +21,7 @@ public class Project {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project")
     private List<Frame> frames;
 
     public Project() {

@@ -23,8 +23,8 @@ public class Task {
     private Frame frame;
     
     @ManyToOne
-    @JoinColumn(name = "responsible_id")
-    private User responsible;
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
@@ -92,12 +92,12 @@ public class Task {
         this.frame = frame;
     }
 
-    public User getResponsible() {
-        return responsible;
+    public User getAssignee() {
+        return assignee;
     }
 
-    public void setResponsible(User responsible) {
-        this.responsible = responsible;
+    public void setAssignee(User assignee) {
+        this.assignee = assignee;
     }
 
     public List<Comment> getComments() {
