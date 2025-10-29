@@ -2,7 +2,6 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.TaskRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.TaskResponse;
-import br.com.ufrn.imd.Project_Manager.model.Comment;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Task;
 import br.com.ufrn.imd.Project_Manager.model.User;
