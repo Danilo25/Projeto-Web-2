@@ -22,14 +22,14 @@ public class CommentApiController {
     @Autowired
     private CommentService commentService;
 
-    @GetMapping
+    @GetMapping("/task/{id}")
     @Operation(summary = "Listar todos os comentários", description = "Retorna uma lista de todos os comentários das tarefas.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de comentários retornada com sucesso."),
             @ApiResponse(responseCode = "204", description = "Nenhum comentário encontrado.")
     })
-    public ResponseEntity<List<CommentResponse>> findAllByTask() {
-        List<CommentResponse> comments = this.commentService.listAllComments();
+    public ResponseEntity<List<CommentResponse>> findAllByTask(@PathVariable Long id) {
+        List<CommentResponse> comments = this.commentService.findCommentByTask(id);
 
         if(comments.isEmpty()){
             return ResponseEntity.noContent().build();
@@ -38,7 +38,7 @@ public class CommentApiController {
         return ResponseEntity.ok(comments);
     }
 
-    @GetMapping("{name}")
+    @GetMapping("/search/{name}")
     @Operation(summary = "Buscar comentários por nome", description = "Retorna uma lista de comentários que correspondem ao nome fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de comentários retornada com sucesso."),
@@ -63,7 +63,7 @@ public class CommentApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentResponse);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Atualizar um comentário", description = "Atualiza um comentário existente com base no ID fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comentário atualizado com sucesso."),
@@ -78,7 +78,7 @@ public class CommentApiController {
         }
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Deletar um comentário", description = "Deleta um comentário existente com base no ID fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Comentário deletado com sucesso."),
