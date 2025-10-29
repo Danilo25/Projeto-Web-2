@@ -13,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 @RestController
 @RequestMapping("/api/addresses")
 @Tag(name = "Endereços", description = "Endpoints para gerenciamento de endereços dos usuários")
@@ -25,70 +29,103 @@ public class AddressApiController {
     @Operation(summary = "Busca endereço pelo ID do usuário", description = "Retorna o endereço associado a um usuário específico.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereço encontrado"),
-            @ApiResponse(responseCode = "404", description = "Endereço não encontrado para o usuário")
+            @ApiResponse(responseCode = "404", description = "Endereço ou usuário não encontrado")
     })
-    public ResponseEntity<AddressResponse> getAddressByUserId(
-            @Parameter(description = "ID do usuário", required = true) @PathVariable Long userId) {
+    public ResponseEntity<?> getAddressByUserId(
+            @Parameter(description = "ID do usuário para buscar o endereço", required = true)
+            @PathVariable Long userId) {
         try {
-            AddressResponse address = addressService.getAddressByUserId(userId);
+            AddressResponse address = addressService.getMyAddress(userId);
             return ResponseEntity.ok(address);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @PostMapping
-    @Operation(summary = "Cria um endereço para um usuário", description = "Associa um novo endereço a um usuário existente.")
+    @PostMapping("/user/{userId}")
+    @Operation(summary = "Cria um endereço para um usuário específico")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Endereço criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "ID do usuário não fornecido"),
-            @ApiResponse(responseCode = "409", description = "Usuário não encontrado ou já possui endereço")
+            @ApiResponse(responseCode = "400", description = "Requisição inválida"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Conflito (usuário já possui endereço OU endereço duplicado)")
     })
-    public ResponseEntity<?> createAddress(@RequestBody AddressRequest addressRequest) {
+    public ResponseEntity<?> createAddressForUserId(
+            @PathVariable Long userId,
+            @RequestBody AddressRequest addressRequest) {
         try {
-            AddressResponse newAddress = addressService.createAddressForUser(addressRequest);
+            AddressResponse newAddress = addressService.createAddressForUser(addressRequest, userId);
             return new ResponseEntity<>(newAddress, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            if (e.getMessage().toLowerCase().contains("não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().toLowerCase().contains("conflito")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado.");
         }
     }
 
-    @PutMapping("/{addressId}")
-    @Operation(summary = "Atualiza um endereço existente", description = "Atualiza os dados de um endereço pelo seu ID.")
+    @GetMapping
+    @Operation(summary = "Lista ou busca endereços", description = "Retorna uma lista paginada de endereços, com filtros opcionais.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de endereços retornada com sucesso")
+    })
+    public ResponseEntity<Page<AddressResponse>> listOrSearchAddresses(
+            @Parameter(description = "Filtrar por logradouro (parcial)") @RequestParam(required = false) String publicPlace,
+            @Parameter(description = "Filtrar por bairro (parcial)") @RequestParam(required = false) String district,
+            @Parameter(description = "Filtrar por cidade (parcial)") @RequestParam(required = false) String city,
+            @Parameter(description = "Filtrar por estado (parcial)") @RequestParam(required = false) String state,
+            @Parameter(description = "Filtrar por CEP (prefixo ou exato)") @RequestParam(required = false) String zipCode,
+            @PageableDefault(size = 20, sort = "city") Pageable pageable 
+    ) {
+        Page<AddressResponse> addresses = addressService.searchAddresses(city, state, zipCode, district, publicPlace, pageable);
+        return ResponseEntity.ok(addresses);
+    }
+
+    @PutMapping("/user/{userId}")
+    @Operation(summary = "Atualiza o endereço de um usuário", description = "Atualiza os dados do endereço existente associado ao ID do usuário fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereço atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Endereço ou novo usuário não encontrado"),
-            @ApiResponse(responseCode = "409", description = "Conflito ao tentar associar a um usuário que já tem endereço")
+            @ApiResponse(responseCode = "404", description = "Endereço não encontrado para o usuário fornecido"),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (dados do endereço)")
     })
-    public ResponseEntity<?> updateAddress(
-            @Parameter(description = "ID do endereço a ser atualizado", required = true) @PathVariable Long addressId,
+    public ResponseEntity<?> updateAddressByUserId(
+            @Parameter(description = "ID do usuário cujo endereço será atualizado", required = true)
+            @PathVariable Long userId,
             @RequestBody AddressRequest addressRequest) {
         try {
-            AddressResponse updatedAddress = addressService.updateAddress(addressId, addressRequest);
+            AddressResponse updatedAddress = addressService.updateMyAddress(userId, addressRequest);
             return ResponseEntity.ok(updatedAddress);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-             if (e.getMessage().contains("not found")) {
-                 return ResponseEntity.notFound().build();
-             }
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            if (e.getMessage().toLowerCase().contains("não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao atualizar endereço.");
         }
     }
 
-    @DeleteMapping("/{addressId}")
-    @Operation(summary = "Deleta um endereço", description = "Remove um endereço do sistema pelo seu ID.")
+    @DeleteMapping("/user/{userId}")
+    @Operation(summary = "Deleta o endereço de um usuário", description = "Remove o endereço associado ao ID do usuário fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Endereço deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Endereço não encontrado")
+            @ApiResponse(responseCode = "404", description = "Endereço não encontrado para o usuário fornecido")
     })
-    public ResponseEntity<Void> deleteAddress(
-            @Parameter(description = "ID do endereço a ser deletado", required = true) @PathVariable Long addressId) {
+    public ResponseEntity<?> deleteAddressByUserId(
+            @Parameter(description = "ID do usuário cujo endereço será deletado", required = true)
+            @PathVariable Long userId) {
         try {
-            addressService.deleteAddress(addressId);
+            addressService.deleteMyAddress(userId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            if (e.getMessage().toLowerCase().contains("não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao deletar endereço.");
         }
     }
 }

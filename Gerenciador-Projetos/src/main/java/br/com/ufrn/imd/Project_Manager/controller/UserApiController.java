@@ -13,24 +13,36 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários") // Agrupa endpoints na UI
+@Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários")
 public class UserApiController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping
-    @Operation(summary = "Lista ou pesquisa usuários", description = "Retorna uma lista de todos os usuários ou filtra por nome.")
+    @Operation(summary = "Lista ou pesquisa usuários", description = "Retorna uma lista de todos os usuários, com filtros opcionais por nome e cargo.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
     })
-    public ResponseEntity<List<UserResponse>> listOrSearchUsers(
-            @Parameter(description = "Nome parcial para filtrar usuários (opcional)") @RequestParam(required = false) String name) {
-        List<UserResponse> users = userService.searchUserByName(name);
+    public ResponseEntity<Page<UserResponse>> listOrSearchUsers(
+            
+            @Parameter(description = "Nome parcial para filtrar usuários (opcional)") 
+            @RequestParam(required = false) String name,
+
+            @Parameter(description = "Cargo para filtrar usuários (opcional)") 
+            @RequestParam(required = false) String position,
+            
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) 
+    {
+        Page<UserResponse> users = userService.searchUsers(name, position, pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -54,12 +66,18 @@ public class UserApiController {
     @Operation(summary = "Cria um novo usuário", description = "Cadastra um novo usuário no sistema.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos") // Adicionar validação depois
+            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
+            @ApiResponse(responseCode = "409", description = "e-mail ou nome já existe")
     })
-    public ResponseEntity<UserResponse> createUser(
-             @RequestBody UserRequest userRequest) { // @Valid pode ser adicionado aqui
-        UserResponse newUser = userService.createUser(userRequest);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
+        try {
+            UserResponse newUser = userService.createUser(userRequest);
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
@@ -67,16 +85,20 @@ public class UserApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
+            @ApiResponse(responseCode = "409", description = "e-mail ou nome já existe")
     })
-    public ResponseEntity<UserResponse> updateUser(
+    public ResponseEntity<?> updateUser(
             @Parameter(description = "ID do usuário a ser atualizado", required = true) @PathVariable Long id,
-            @RequestBody UserRequest userRequest) { // @Valid pode ser adicionado aqui
+            @RequestBody UserRequest userRequest) {
         try {
             UserResponse updatedUser = userService.updateUser(id, userRequest);
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            if (e.getMessage().contains("not found")) {
+                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
@@ -94,16 +116,5 @@ public class UserApiController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    // Endpoint específico para busca (usado pelo modal)
-    @GetMapping("/search")
-    @Operation(summary = "Pesquisa usuários por nome (para UI)", description = "Endpoint otimizado para buscas assíncronas no frontend.")
-     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pesquisa realizada com sucesso")
-    })
-    public List<UserResponse> searchUsersByName(
-            @Parameter(description = "Nome parcial para filtrar usuários", required = true) @RequestParam String name) {
-        return userService.searchUserByName(name);
     }
 }

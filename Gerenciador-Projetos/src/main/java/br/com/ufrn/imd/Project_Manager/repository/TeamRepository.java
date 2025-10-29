@@ -6,9 +6,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Set;
 
-@Repository
-public interface TeamRepository extends JpaRepository<Team, Long> {
-    List<Team> findByNameContainingIgnoreCase(String name);
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import java.util.Optional;
 
+@Repository
+public interface TeamRepository extends JpaRepository<Team, Long>, JpaSpecificationExecutor<Team> {
+    
     Set<Team> findByUsers_Id(Long userId);
+    boolean existsByNameIgnoreCase(String name);
+    Optional<Team> findByNameIgnoreCase(String name);
+    
 }
