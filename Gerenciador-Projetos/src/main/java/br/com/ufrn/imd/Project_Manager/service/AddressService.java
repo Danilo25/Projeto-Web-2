@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import java.util.Optional;
 
 @Service
 public class AddressService {
@@ -103,5 +104,44 @@ public class AddressService {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new RuntimeException("Address not found with ID: " + addressId));
         addressRepository.delete(address);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<AddressResponse> findAddressResponseByUserId(Long userId) {
+        // Usa o método findByUserId do repositório
+        return addressRepository.findByUserId(userId) 
+                .map(this::toAddressResponse); // Converte para AddressResponse se existir
+    }
+
+    @Transactional
+    public AddressResponse createOrUpdateAddressForUser(Long userId, AddressRequest addressRequest) {
+        // Verifica se já existe um endereço para este usuário
+        Optional<Address> existingAddressOpt = addressRepository.findByUserId(userId);
+
+        if (existingAddressOpt.isPresent()) {
+            // Se existe, atualiza
+            Address existingAddress = existingAddressOpt.get();
+            
+            existingAddress.setPublicPlace(addressRequest.publicPlace());
+            existingAddress.setDistrict(addressRequest.district());
+            existingAddress.setCity(addressRequest.city());
+            existingAddress.setState(addressRequest.state());
+            existingAddress.setZipCode(addressRequest.zipCode());
+            
+            Address updatedAddress = addressRepository.save(existingAddress);
+            return toAddressResponse(updatedAddress);
+        } else {
+            // Se não existe, cria um novo (reutilizando a lógica de createAddressForUser)
+            // Garante que o ID do usuário no request está correto
+            AddressRequest requestWithUserId = new AddressRequest(
+                addressRequest.publicPlace(),
+                addressRequest.district(),
+                addressRequest.city(),
+                addressRequest.state(),
+                addressRequest.zipCode(),
+                userId // Garante o ID do usuário
+            );
+            return createAddressForUser(requestWithUserId);
+        }
     }
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Usuários</title>
+    <style>.error { color: red; } .success { color: green; }</style>
+</head>
+<body>
+    <h1>Login (Seleção de Usuário)</h1>
+
+    <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+    <br>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Cargo</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+                <td th:text="${user.name}">Nome do Usuário</td>
+                <td th:text="${user.email}">email@exemplo.com</td>
+                <td th:text="${user.position}">Cargo</td>
+                <td>
+                    <a th:href="@{/users/dashboard/{userId}(userId=${user.id})}">Entrar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <a th:href="@{/users/register}">Registrar Novo Usuário</a>
+</body>
+</html>

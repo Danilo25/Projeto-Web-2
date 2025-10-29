@@ -6,6 +6,8 @@ import br.com.ufrn.imd.Project_Manager.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import java.util.Optional;
+import br.com.ufrn.imd.Project_Manager.model.User;
 
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -96,4 +98,5 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         userRepository.delete(user);
     }
+
 }

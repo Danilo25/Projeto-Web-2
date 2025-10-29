@@ -51,17 +51,20 @@ public class TeamApiController {
     }
 
     @PostMapping
-    @Operation(summary = "Cria uma nova equipe", description = "Cadastra uma nova equipe, opcionalmente associando usuários existentes.")
+    @Operation(summary = "Cria uma nova equipe", description = "Cadastra uma nova equipe, associando usuários existentes e o criador.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Equipe criada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou usuário não encontrado")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos, criador não especificado, ou usuário(s) não encontrado(s)")
     })
     public ResponseEntity<?> createTeam(@RequestBody TeamRequest teamRequest) {
          try {
-            TeamResponse newTeam = teamService.createTeam(teamRequest);
+            if (teamRequest.creatorId() == null) {
+                return ResponseEntity.badRequest().body("Creator ID (creatorId) is required in the request body.");
+            }
+            TeamResponse newTeam = teamService.createTeam(teamRequest, teamRequest.creatorId()); 
             return new ResponseEntity<>(newTeam, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // e.g., "One or more users not found!"
+            return ResponseEntity.badRequest().body(e.getMessage()); 
         }
     }
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <p>Bem-vindo(a), <strong th:text="${user.name}">Nome do Usuário</strong>!</p>
+
+    <h2>Navegação</h2>
+    <ul>
+        <li>
+            <a th:href="@{/users/profile/{userId}(userId=${user.id})}">Meu Perfil</a>
+        </li>
+        <li>
+            <a th:href="@{/users/dashboard/{userId}/teams(userId=${user.id})}">Minhas Equipes</a>
+        </li>
+    </ul>
+
+    <hr>
+    <a th:href="@{/}">Sair (Voltar à seleção de usuário)</a>
+</body>
+</html>

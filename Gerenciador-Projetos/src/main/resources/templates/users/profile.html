@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil do Usuário</title>
+    <style>.error { color: red; } .success { color: green; }</style>
+    </head>
+<body>
+    <h1>Perfil de <span th:text="${user.name}">Nome do Usuário</span></h1>
+
+    <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+
+
+    <h2>Editar Perfil</h2>
+    <form th:action="@{/users/profile/{userId}/update(userId=${user.id})}" method="post">
+        <div>
+            <label for="profileName">Nome:</label>
+            <input type="text" id="profileName" name="name" th:value="${user.name}" required>
+        </div>
+         <div>
+            <label for="profilePosition">Cargo:</label>
+            <input type="text" id="profilePosition" name="position" th:value="${user.position}">
+        </div>
+        <div>
+            <label>Email:</label>
+            <span th:text="${user.email}">email@exemplo.com</span> (não editável aqui)
+        </div>
+        <br>
+        <button type="submit">Atualizar Perfil</button>
+    </form>
+
+    <hr>
+    <br>
+    <a th:href="@{/users}">Voltar para a lista de usuários</a>
+    </body>
+</html>

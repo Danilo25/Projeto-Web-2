@@ -52,6 +52,14 @@ public class TeamService {
     }
 
     @Transactional(readOnly = true)
+    public Set<TeamResponse> findTeamsByUserId(Long userId) {
+        Set<Team> teams = teamRepository.findByUsers_Id(userId);
+        return teams.stream()
+                .map(this::toTeamResponse)
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional(readOnly = true)
      public List<TeamResponse> searchTeamByName(String name) {
         List<Team> teams;
         if (StringUtils.hasText(name)) {
@@ -66,20 +74,24 @@ public class TeamService {
 
 
     @Transactional
-    public TeamResponse createTeam(TeamRequest teamRequest) {
+    public TeamResponse createTeam(TeamRequest teamRequest, Long creatorId){
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("Creator User not found with ID: " + creatorId));
         Team newTeam = new Team();
         newTeam.setName(teamRequest.name());
         newTeam.setDescription(teamRequest.description());
 
-        if (teamRequest.userIds() != null && !teamRequest.userIds().isEmpty()) {
-            List<User> users = userRepository.findAllById(teamRequest.userIds());
-            if (users.size() != teamRequest.userIds().size()) {
-                 throw new RuntimeException("One or more users not found!");
+        Set<User> teamMembers = new HashSet<>();
+        teamMembers.add(creator);
+        if (teamRequest.userIds() != null && !teamRequest.userIds().isEmpty()) { //
+            List<User> selectedUsers = userRepository.findAllById(teamRequest.userIds()); //
+            if (selectedUsers.size() != teamRequest.userIds().size()) { 
+                 throw new RuntimeException("One or more selected users not found!"); //
             }
-            newTeam.setUsers(new HashSet<>(users));
+            teamMembers.addAll(selectedUsers);
         }
-
-        Team savedTeam = teamRepository.save(newTeam);
+        newTeam.setUsers(teamMembers);
+        Team savedTeam = teamRepository.save(newTeam); 
         return toTeamResponse(savedTeam);
     }
 

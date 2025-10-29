@@ -13,6 +13,7 @@
     <h1>Nova Equipe</h1>
 
     <form th:action="@{/teams/save}" th:object="${team}" method="post">
+        <input type="hidden" th:field="*{creatorId}" />
         <div>
             <label for="name">Nome da Equipe:</label>
             <input type="text" id="name" th:field="*{name}" required>
@@ -84,7 +85,7 @@
             table.innerHTML = `<thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>`;
             const tbody = document.createElement('tbody');
             users.forEach(user => {
-                if (!addedMembers.has(user.iD.toString())) {
+                if (!addedMembers.has(user.id.toString())) {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td>${user.name}</td><td>${user.email}</td>`;
                     const addButton = document.createElement('button');
@@ -102,33 +103,33 @@
         }
         
         function addMember(user) {
-            if (addedMembers.has(user.id.toString())) return;
+    if (addedMembers.has(user.id.toString())) return;
 
-            addedMembers.add(user.id.toString());
-            
-            const divMember = document.createElement('div');
-            divMember.id = `member-${user.id}`;
-            divMember.innerHTML = `<span>${user.name} (${user.email})</span>`;
-            
-            const removeButton = document.createElement('button');
-            removeButton.textContent = 'Remover';
-            removeButton.type = 'button';
-            removeButton.onclick = () => removeMember(user.id);
-            
-            divMember.appendChild(removeButton);
-            divSelectedMembers.appendChild(divMember);
+    addedMembers.add(user.id.toString());
+    
+    const divMember = document.createElement('div');
+    divMember.id = `member-${user.id}`;
+    divMember.innerHTML = `<span>${user.name} (${user.email})</span>`;
+    
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remover';
+    removeButton.type = 'button';
+    removeButton.onclick = () => removeMember(user.id);
+    
+    divMember.appendChild(removeButton);
+    divSelectedMembers.appendChild(divMember);
 
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'users';
-            hiddenInput.value = user.id;
-            hiddenInput.id = `input-member-${user.id}`;
-            form.appendChild(hiddenInput);
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'userIds';
+    hiddenInput.value = user.id;
+    hiddenInput.id = `input-member-${user.id}`;
+    form.appendChild(hiddenInput);
 
-            inputResearch.value = '';
-            divResultResearch.innerHTML = '';
-            modal.style.display = "none";
-        }
+    inputResearch.value = '';
+    divResultResearch.innerHTML = '';
+    modal.style.display = "none";
+}
 
         function removeMember(userID) {
             addedMembers.delete(userID.toString());

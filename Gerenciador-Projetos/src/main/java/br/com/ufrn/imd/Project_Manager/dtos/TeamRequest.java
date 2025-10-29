@@ -5,5 +5,6 @@ import java.util.List;
 public record TeamRequest(
         String name,
         String description,
-        List<Long> userIds
+        List<Long> userIds,
+        Long creatorId
 ) {}
