@@ -1,4 +1,4 @@
-package br.com.ufrn.imd.Project_Manager.dtos;
+package br.com.ufrn.imd.Project_Manager.dtos.api;
 
 import java.util.List;
 

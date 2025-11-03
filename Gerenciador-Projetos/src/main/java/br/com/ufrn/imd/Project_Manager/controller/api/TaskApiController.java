@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TaskRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.TaskResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TaskRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TaskResponse;
 import br.com.ufrn.imd.Project_Manager.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

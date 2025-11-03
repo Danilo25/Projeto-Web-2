@@ -1,7 +1,8 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TeamRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.TeamResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.DashboardPageTeamResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TeamRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TeamResponse;
 import br.com.ufrn.imd.Project_Manager.model.Team;
 import br.com.ufrn.imd.Project_Manager.model.User;
 import br.com.ufrn.imd.Project_Manager.repository.TeamRepository;
@@ -56,6 +57,17 @@ public class TeamService {
         Set<Team> teams = teamRepository.findByUsers_Id(userId);
         return teams.stream()
                 .map(this::toTeamResponse)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<DashboardPageTeamResponse> findTeamsByUserIdForDashboardPage (Long userId) {
+        Set<Team> teams = teamRepository.findByUsers_Id(userId);
+        return teams.stream()
+                .map(team -> new DashboardPageTeamResponse(
+                        team.getId(),
+                        team.getName(),
+                        team.getDescription()
+                ))
                 .collect(Collectors.toSet());
     }
 

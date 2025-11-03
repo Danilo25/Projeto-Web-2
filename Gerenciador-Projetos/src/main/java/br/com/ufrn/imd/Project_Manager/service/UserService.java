@@ -1,7 +1,7 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.UserRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.UserResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.UserRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.UserResponse;
 import br.com.ufrn.imd.Project_Manager.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
