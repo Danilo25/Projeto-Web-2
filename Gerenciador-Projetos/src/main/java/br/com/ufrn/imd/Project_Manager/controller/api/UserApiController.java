@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.UserRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.UserResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.UserRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.UserResponse;
 import br.com.ufrn.imd.Project_Manager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")

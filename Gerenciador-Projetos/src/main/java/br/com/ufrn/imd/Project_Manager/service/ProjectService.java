@@ -1,7 +1,8 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.ProjectRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.ProjectResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.DashboardPageProjectResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectResponse;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.model.Team;
@@ -67,6 +68,18 @@ public class ProjectService {
                 e.getStatus(),
                 e.getTeam().getId(),
                 e.getFrames().stream().map(Frame::getId).toList()
+        )).toList();
+    }
+
+    public List<DashboardPageProjectResponse> getProjectsByTeamIdForDashboardPage(Long teamId) {
+        List<Project> projects = this.projectRepository.findByTeamId(teamId);
+
+        return projects.stream().map(e -> new DashboardPageProjectResponse(
+                e.getId(),
+                e.getName(),
+                e.getTeam().getName(),
+                e.getFinalDate(),
+                e.getStatus()
         )).toList();
     }
 

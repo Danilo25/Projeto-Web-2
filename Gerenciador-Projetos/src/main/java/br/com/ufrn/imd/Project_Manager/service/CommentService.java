@@ -1,7 +1,7 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.CommentRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.CommentResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.CommentRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.CommentResponse;
 import br.com.ufrn.imd.Project_Manager.model.Comment;
 import br.com.ufrn.imd.Project_Manager.model.Task;
 import br.com.ufrn.imd.Project_Manager.model.User;

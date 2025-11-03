@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.FrameRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.FrameResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.FrameRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.FrameResponse;
 import br.com.ufrn.imd.Project_Manager.service.FrameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

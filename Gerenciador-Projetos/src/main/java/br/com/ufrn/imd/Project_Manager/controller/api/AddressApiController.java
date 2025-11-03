@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.AddressRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.AddressResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.AddressRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.AddressResponse;
 import br.com.ufrn.imd.Project_Manager.service.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

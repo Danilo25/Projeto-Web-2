@@ -1,6 +1,6 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TagRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TagRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
