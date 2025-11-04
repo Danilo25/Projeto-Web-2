@@ -61,7 +61,6 @@
             background-size: 50% 50%;
         }
 
-        /* Adicionado para manter consistência no tamanho do card */
         .carousel-item .card {
             width: 20rem; 
             min-height: 180px;
@@ -168,20 +167,18 @@
         crossorigin="anonymous"></script>
 
 <script>
-    // Referências corretas
     const welcomeMessageElement = document.getElementById('welcome-message');
-    const teamsCarouselInner = document.getElementById('teams-carousel-inner'); // ID Correto
+    const teamsCarouselInner = document.getElementById('teams-carousel-inner');
     const projectsListDiv = document.getElementById('projects-list');
     const userId = document.getElementById('user-context').getAttribute('data-userid');
 
-    // 1. Busca os detalhes do usuário (Nome)
     async function fetchUserDetails() {
         if (!userId || isNaN(userId)) {
             welcomeMessageElement.textContent = 'Erro: ID de usuário inválido.';
             return;
         }
         try {
-            const apiUrl = `/api/users/${userId}`; //
+            const apiUrl = `/api/users/${userId}`;
             const response = await fetch(apiUrl);
             if (!response.ok) throw new Error('Usuário não encontrado');
             
@@ -196,18 +193,16 @@
             welcomeMessageElement.textContent = 'Erro ao carregar dados do usuário.';
         }
     }
-
-    // 2. Busca as Equipes do usuário
     async function fetchUserTeams() {
         if (!userId) return [];
         
         try {
-            const response = await fetch(`/api/teams/user/${userId}`); //
+            const response = await fetch(`/api/teams/user/${userId}`);
             if (!response.ok) throw new Error(`Erro ${response.status} ao buscar equipes.`);
 
             const teams = await response.json();
             
-            teamsCarouselInner.innerHTML = ''; // Limpa o "Carregando"
+            teamsCarouselInner.innerHTML = '';
             
             if (!teams || teams.length === 0) {
                 teamsCarouselInner.innerHTML = `
@@ -263,8 +258,7 @@
             return [];
         }
     }
-    
-    // 3. Busca os Projetos (baseado nas equipes)
+
     async function fetchUserProjects(userTeams) {
         if (!userTeams || userTeams.length === 0) {
             projectsListDiv.innerHTML = '<p>Você não tem projetos (pois não está em nenhuma equipe).</p>';
@@ -275,11 +269,11 @@
         const userTeamIds = new Set(userTeams.map(team => team.id));
 
         try {
-            const response = await fetch('/projects'); //
+            const response = await fetch('/projects');
             if (!response.ok) throw new Error('Erro ao buscar projetos');
             
             const allProjects = await response.json(); 
-            const userProjects = allProjects.filter(project => userTeamIds.has(project.teamId)); //
+            const userProjects = allProjects.filter(project => userTeamIds.has(project.teamId));
 
             projectsListDiv.innerHTML = ''; 
 
@@ -312,14 +306,12 @@
         }
     }
 
-    // 4. Função principal para carregar tudo
     async function loadDashboard() {
-        await fetchUserDetails(); // Espera o nome do usuário carregar
-        const teams = await fetchUserTeams(); // Em seguida, carrega as equipes
-        await fetchUserProjects(teams); // Por fim, carrega os projetos
+        await fetchUserDetails();
+        const teams = await fetchUserTeams();
+        await fetchUserProjects(teams);
     }
 
-    // Inicia o carregamento da página
     document.addEventListener('DOMContentLoaded', loadDashboard);
 </script>
 
