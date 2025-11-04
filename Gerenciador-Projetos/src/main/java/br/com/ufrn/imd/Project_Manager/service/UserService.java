@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 @Service
@@ -91,19 +91,21 @@ public class UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        if (userRepository.existsByEmailIgnoreCase(userRequest.email())) {
-            throw new RuntimeException("Conflito: O e-mail '" + userRequest.email() + "' já está em uso.");
-        }
-        if (userRepository.existsByNameIgnoreCase(userRequest.name())) {
-            throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso.");
-        }
-        
-        if (StringUtils.hasText(userRequest.name())) {
-            existingUser.setName(userRequest.name());
-        }
-        if (StringUtils.hasText(userRequest.email())) {
+        if (StringUtils.hasText(userRequest.email()) && !userRequest.email().equalsIgnoreCase(existingUser.getEmail())) {
+            Optional<User> userWithSameEmail = userRepository.findByEmailIgnoreCase(userRequest.email());
+            if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
+                throw new RuntimeException("Conflito: O e-mail '" + userRequest.email() + "' já está em uso por outro usuário.");
+            }
             existingUser.setEmail(userRequest.email());
         }
+        if (StringUtils.hasText(userRequest.name()) && !userRequest.name().equalsIgnoreCase(existingUser.getName())) {
+            Optional<User> userWithSameName = userRepository.findByNameIgnoreCase(userRequest.name());
+            if (userWithSameName.isPresent() && !userWithSameName.get().getId().equals(userId)) {
+                 throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso por outro usuário.");
+            }
+            existingUser.setName(userRequest.name());
+        }
+        
         if (StringUtils.hasText(userRequest.password())) {
             existingUser.setPassword(userRequest.password());
         }

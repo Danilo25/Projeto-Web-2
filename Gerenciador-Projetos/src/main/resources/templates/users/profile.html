@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-size: .875rem;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+            padding: 48px 0 0; box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #fff;
+        }
+        .sidebar-sticky {
+            position: relative; top: 0; height: calc(100vh - 48px);
+            padding-top: .5rem; overflow-x: hidden; overflow-y: auto;
+        }
+        .nav-link { font-weight: 500; color: #333; }
+        .nav-link.active { color: #0d6efd; }
+        .main-content { padding-top: 24px; }
+    </style>
+</head>
+<body>
+
+<span id="user-context" th:data-userid="${userId}" class="d-none"></span>
+
+<div class="container-fluid">
+    <div class="row">
+        
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3 sidebar-sticky">
+                
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-2 text-muted text-uppercase">
+                    <span>Menu</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/web/home/{id}(id=${userId})}"> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" th:href="@{/web/profile/{id}(id=${userId})}"> Perfil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            
+            <h1 id="user-name-title">Meu Perfil</h1>
+            <p class="lead">Gerencie suas informações pessoais e de endereço.</p>
+            
+            <div id="alert-placeholder"></div>
+
+            <hr class="my-4">
+
+            <div class="row justify-content-center g-4">
+                <div class="col-lg-10 col-xl-9">
+                    
+                    <div class="card mb-4"> <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Informações Pessoais</h5>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal">
+                                Editar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Nome:</strong> <span id="info-name">Carregando...</span></li>
+                                <li class="list-group-item"><strong>Email:</strong> <span id="info-email">Carregando...</span></li>
+                                <li class="list-group-item"><strong>Cargo:</strong> <span id="info-position">Carregando...</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card"> <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Endereço</h5>
+                            <button class="btn btn-warning btn-sm" id="btn-edit-address" data-bs-toggle="modal" data-bs-target="#editAddressModal">
+                                Editar
+                            </button>
+                        </div>
+                        <div class="card-body" id="address-card-body">
+                            <p id="address-loading-text">Carregando endereço...</p>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Editar Informações Pessoais</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="edit-user-form">
+                <div class="modal-body">
+                    <div id="user-modal-alert"></div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-name" class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="edit-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="edit-email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-position" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" id="edit-position">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-password" class="form-label">Nova Senha (Opcional)</label>
+                        <input type="password" class="form-control" id="edit-password" placeholder="Deixe em branco para não alterar">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Editar Endereço</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="edit-address-form">
+                <div class="modal-body">
+                    <div id="address-modal-alert"></div>
+
+                    <div class="mb-3">
+                        <label for="edit-publicPlace" class="form-label">Logradouro (Rua/Av.)</label>
+                        <input type="text" class="form-control" id="edit-publicPlace">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-district" class="form-label">Bairro</label>
+                        <input type="text" class="form-control" id="edit-district">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-city" class="form-label">Cidade</label>
+                        <input type="text" class="form-control" id="edit-city">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-state" class="form-label">Estado (UF)</label>
+                        <input type="text" class="form-control" id="edit-state" maxlength="2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-zipCode" class="form-label">CEP</label>
+                        <input type="text" class="form-control" id="edit-zipCode">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Endereço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const userId = document.getElementById('user-context').getAttribute('data-userid');
+    const alertPlaceholder = document.getElementById('alert-placeholder');
+
+    const userNameTitle = document.getElementById('user-name-title');
+    const infoName = document.getElementById('info-name');
+    const infoEmail = document.getElementById('info-email');
+    const infoPosition = document.getElementById('info-position');
+
+    const addressCardBody = document.getElementById('address-card-body');
+    const addressLoadingText = document.getElementById('address-loading-text');
+    const btnEditAddress = document.getElementById('btn-edit-address');
+
+    const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    const editUserForm = document.getElementById('edit-user-form');
+    const userModalAlert = document.getElementById('user-modal-alert');
+
+    const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+    const editAddressModalLabel = document.getElementById('editAddressModalLabel');
+    const editAddressForm = document.getElementById('edit-address-form');
+    const addressModalAlert = document.getElementById('address-modal-alert');
+
+    let currentUserData = null;
+    let currentUserAddress = null;
+
+    function showAlert(message, type = 'danger', element = alertPlaceholder) {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+        element.innerHTML = '';
+        element.append(wrapper);
+    }
+    function clearAlert(element = alertPlaceholder) {
+        element.innerHTML = '';
+    }
+
+    async function loadUserProfile() {
+        if (!userId) {
+            userNameTitle.textContent = "Erro: ID de usuário não encontrado.";
+            return;
+        }
+        try {
+            const response = await fetch(`/api/users/${userId}`);
+            if (!response.ok) throw new Error('Usuário não encontrado');
+
+            currentUserData = await response.json();
+
+            userNameTitle.textContent = `Perfil de ${currentUserData.name}`;
+            infoName.textContent = currentUserData.name;
+            infoEmail.textContent = currentUserData.email;
+            infoPosition.textContent = currentUserData.position || 'N/A';
+
+            document.getElementById('edit-name').value = currentUserData.name;
+            document.getElementById('edit-email').value = currentUserData.email;
+            document.getElementById('edit-position').value = currentUserData.position || '';
+
+        } catch (error) {
+            console.error(error);
+            showAlert(`Erro ao carregar perfil: ${error.message}`);
+        }
+    }
+
+    async function loadUserAddress() {
+        if (!userId) return;
+        
+        try {
+            const response = await fetch(`/api/addresses/user/${userId}`);
+            
+            if (response.status === 404) {
+                addressCardBody.innerHTML = `
+                    <p class="text-muted">Nenhum endereço cadastrado.</p>
+                `;
+                btnEditAddress.textContent = "Cadastrar Endereço";
+                editAddressModalLabel.textContent = "Cadastrar Novo Endereço";
+                currentUserAddress = null;
+                return;
+            }
+            
+            if (!response.ok) throw new Error('Erro ao buscar endereço');
+
+            currentUserAddress = await response.json();
+
+            addressCardBody.innerHTML = `
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Logradouro:</strong> ${currentUserAddress.publicPlace || 'N/A'}</li>
+                    <li class="list-group-item"><strong>Bairro:</strong> ${currentUserAddress.district || 'N/A'}</li>
+                    <li class="list-group-item"><strong>Cidade:</strong> ${currentUserAddress.city || 'N/A'}</li>
+                    <li class="list-group-item"><strong>Estado:</strong> ${currentUserAddress.state || 'N/A'}</li>
+                    <li class="list-group-item"><strong>CEP:</strong> ${currentUserAddress.zipCode || 'N/A'}</li>
+                </ul>
+            `;
+            document.getElementById('edit-publicPlace').value = currentUserAddress.publicPlace || '';
+            document.getElementById('edit-district').value = currentUserAddress.district || '';
+            document.getElementById('edit-city').value = currentUserAddress.city || '';
+            document.getElementById('edit-state').value = currentUserAddress.state || '';
+            document.getElementById('edit-zipCode').value = currentUserAddress.zipCode || '';
+
+            btnEditAddress.textContent = "Editar Endereço";
+            editAddressModalLabel.textContent = "Editar Endereço";
+
+        } catch (error) {
+            console.error(error);
+            addressCardBody.innerHTML = `<p class="text-danger">Erro ao carregar endereço.</p>`;
+        }
+    }
+
+    editUserForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const userRequest = {
+            name: document.getElementById('edit-name').value,
+            email: document.getElementById('edit-email').value,
+            position: document.getElementById('edit-position').value,
+            password: document.getElementById('edit-password').value || null
+        };
+
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userRequest)
+            });
+
+            if (response.ok) {
+                showAlert('Perfil atualizado com sucesso!', 'success', alertPlaceholder);
+                editUserModal.hide();
+                loadUserProfile();
+            } else {
+                const errorMessage = await response.text();
+                showAlert(errorMessage || 'Erro ao atualizar perfil.', 'danger', userModalAlert);
+            }
+        } catch (error) {
+             showAlert(`Erro de conexão: ${error.message}`, 'danger', userModalAlert);
+        }
+    });
+
+    editAddressForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const addressRequest = {
+            publicPlace: document.getElementById('edit-publicPlace').value,
+            district: document.getElementById('edit-district').value,
+            city: document.getElementById('edit-city').value,
+            state: document.getElementById('edit-state').value,
+            zipCode: document.getElementById('edit-zipCode').value
+        };
+        const isUpdating = currentUserAddress !== null;
+        const method = isUpdating ? 'PUT' : 'POST';
+        const apiUrl = `/api/addresses/user/${userId}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addressRequest)
+            });
+
+            if (response.ok || response.status === 201) {
+                showAlert('Endereço salvo com sucesso!', 'success', alertPlaceholder);
+                editAddressModal.hide();
+                loadUserAddress();
+            } else {
+                const errorMessage = await response.text();
+                showAlert(errorMessage || 'Erro ao salvar endereço.', 'danger', addressModalAlert);
+            }
+        } catch (error) {
+            showAlert(`Erro de conexão: ${error.message}`, 'danger', addressModalAlert);
+        }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUserProfile();
+        loadUserAddress();
+    });
+</script>
+
+</body>
+</html>
