@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Equipe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 20px; }
+        .form-container { max-width: 700px; margin: auto; }
+        #user-search-results .list-group-item {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container form-container">
+    <h1 class="mb-4">Criar Nova Equipe</h1>
+
+    <div id="alert-placeholder"></div>
+
+    <form id="team-form">
+        <input type="hidden" id="creatorId" th:value="${creatorId}">
+        
+        <div class="mb-3">
+            <label for="name" class="form-label">Nome da Equipe *</label>
+            <input type="text" class="form-control" id="name" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="description" class="form-label">Descrição</label>
+            <textarea class="form-control" id="description" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Membros</label>
+            
+            <ul id="added-members-list" class="list-group mb-2" style="max-height: 250px; overflow-y: auto;">
+                <li class="list-group-item d-flex justify-content-between align-items-center" th:data-userid="${creatorId}">
+                    <span id="creator-name">Carregando criador...</span>
+                    <span class="badge bg-primary rounded-pill">Criador</span>
+                </li>
+            </ul>
+            
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                + Adicionar Membro
+            </button>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Salvar Equipe</button>
+            <a th:href="@{/web/home/{id}(id=${creatorId})}" class="btn btn-secondary">Voltar para Home</a>
+        </div>
+    </form>
+</div>
+
+
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMemberModalLabel">Adicionar Membros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="user-search-input" class="form-label">Buscar por nome:</label>
+                    <input type="text" class="form-control" id="user-search-input" placeholder="Digite um nome...">
+                </div>
+                <ul id="user-search-results" class="list-group">
+                    </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const form = document.getElementById('team-form');
+    const alertPlaceholder = document.getElementById('alert-placeholder');
+    const creatorIdField = document.getElementById('creatorId');
+    const creatorNameSpan = document.getElementById('creator-name');
+    const addedMembersList = document.getElementById('added-members-list');
+
+    const creatorId = Number(creatorIdField.value);
+    const selectedMembers = new Map();
+
+    function showAlert(message, type = 'danger') {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+        alertPlaceholder.innerHTML = '';
+        alertPlaceholder.append(wrapper);
+    }
+
+    function renderAddedMembers() {
+        while (addedMembersList.children.length > 1) {
+            addedMembersList.removeChild(addedMembersList.lastChild);
+        }
+
+        selectedMembers.forEach((name, id) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.setAttribute('data-userid', id);
+            
+            li.innerHTML = `
+                <span>${name}</span>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeMember(${id})">X</button>
+            `;
+            addedMembersList.appendChild(li);
+        });
+    }
+    function addMember(id, name) {
+        if (id === creatorId) {
+            alert('O criador já é membro da equipe por padrão.');
+            return;
+        }
+        if (selectedMembers.has(id)) {
+            alert('Este usuário já foi adicionado.');
+            return;
+        }
+        
+        selectedMembers.set(id, name);
+        renderAddedMembers();
+        document.getElementById('user-search-input').value = '';
+        document.getElementById('user-search-results').innerHTML = '';
+        bootstrap.Modal.getInstance(document.getElementById('addMemberModal')).hide();
+    }
+    function removeMember(id) {
+        if (selectedMembers.has(id)) {
+            selectedMembers.delete(id);
+            renderAddedMembers();
+        }
+    }
+
+    const searchInput = document.getElementById('user-search-input');
+    const searchResultsList = document.getElementById('user-search-results');
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', () => {
+        clearTimeout(searchTimeout);
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm.length < 2) {
+            searchResultsList.innerHTML = '';
+            return;
+        }
+        searchTimeout = setTimeout(async () => {
+            try {
+                searchResultsList.innerHTML = '<li class="list-group-item">Buscando...</li>';
+                const response = await fetch(`/api/users?name=${encodeURIComponent(searchTerm)}&size=10`);
+                if (!response.ok) throw new Error('Falha na busca');
+                
+                const userPage = await response.json();
+                searchResultsList.innerHTML = '';
+
+                if (userPage.content && userPage.content.length > 0) {
+                    userPage.content.forEach(user => {
+                        if (user.id === creatorId || selectedMembers.has(user.id)) {
+                            return;
+                        }
+                        
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                        li.innerHTML = `
+                            <span>${user.name} (${user.position || 'Sem cargo'})</span>
+                            <button type="button" class="btn btn-success btn-sm" onclick="addMember(${user.id}, '${user.name}')">Adicionar</button>
+                        `;
+                        searchResultsList.appendChild(li);
+                    });
+                } else {
+                    searchResultsList.innerHTML = '<li class="list-group-item">Nenhum usuário encontrado.</li>';
+                }
+            } catch (error) {
+                console.error('Erro na busca:', error);
+                searchResultsList.innerHTML = '<li class="list-group-item text-danger">Erro ao buscar usuários.</li>';
+            }
+        }, 300);
+    });
+    async function loadCreatorName() {
+        try {
+            const response = await fetch(`/api/users/${creatorId}`);
+            if (!response.ok) throw new Error('Criador não encontrado');
+            const creator = await response.json();
+            creatorNameSpan.textContent = `${creator.name} (Você)`;
+        } catch (error) {
+            console.error(error);
+            creatorNameSpan.textContent = 'Criador (ID: ${creatorId})';
+            creatorNameSpan.classList.add('text-danger');
+        }
+    }
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const userIds = Array.from(selectedMembers.keys());
+
+        const teamData = {
+            name: name,
+            description: description,
+            userIds: userIds,
+            creatorId: creatorId
+        };
+
+        try {
+            const response = await fetch('/api/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(teamData)
+            });
+
+            if (response.status === 201) {
+                showAlert('Equipe criada com sucesso! Redirecionando para a home...', 'success');
+                form.reset();
+                selectedMembers.clear();
+                renderAddedMembers();
+                setTimeout(() => {
+                    window.location.href = `/web/home/${creatorId}`;
+                }, 2000);
+
+            } else {
+                const errorMessage = await response.text();
+                showAlert(errorMessage || 'Erro ao criar equipe.');
+            }
+
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            showAlert('Erro de conexão. Tente novamente.');
+        }
+    });
+    document.addEventListener('DOMContentLoaded', loadCreatorName);
+</script>
+
+</body>
+</html>
