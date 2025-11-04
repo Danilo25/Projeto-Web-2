@@ -1,7 +1,7 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TagRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.TagResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TagRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TagResponse;
 import br.com.ufrn.imd.Project_Manager.model.Tag;
 import br.com.ufrn.imd.Project_Manager.model.Task;
 import br.com.ufrn.imd.Project_Manager.repository.TagRepository;

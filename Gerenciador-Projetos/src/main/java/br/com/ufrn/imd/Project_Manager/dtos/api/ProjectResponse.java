@@ -1,4 +1,4 @@
-package br.com.ufrn.imd.Project_Manager.dtos;
+package br.com.ufrn.imd.Project_Manager.dtos.api;
 
 import java.time.LocalDate;
 import java.util.List;

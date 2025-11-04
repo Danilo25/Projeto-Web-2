@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.CommentRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.CommentResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.CommentRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.CommentResponse;
 import br.com.ufrn.imd.Project_Manager.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

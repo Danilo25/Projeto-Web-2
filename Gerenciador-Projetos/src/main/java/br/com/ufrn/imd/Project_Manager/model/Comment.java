@@ -1,6 +1,6 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
-import br.com.ufrn.imd.Project_Manager.dtos.CommentRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.CommentRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

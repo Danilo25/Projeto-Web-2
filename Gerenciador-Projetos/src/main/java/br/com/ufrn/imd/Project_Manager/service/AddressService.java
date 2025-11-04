@@ -1,7 +1,7 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.AddressRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.AddressResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.AddressRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.AddressResponse;
 import br.com.ufrn.imd.Project_Manager.model.Address;
 import br.com.ufrn.imd.Project_Manager.model.User;
 import br.com.ufrn.imd.Project_Manager.repository.AddressRepository;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

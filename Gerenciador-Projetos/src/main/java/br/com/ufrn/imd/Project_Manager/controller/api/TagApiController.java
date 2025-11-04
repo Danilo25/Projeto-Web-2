@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TagRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.TagResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TagRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TagResponse;
 import br.com.ufrn.imd.Project_Manager.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

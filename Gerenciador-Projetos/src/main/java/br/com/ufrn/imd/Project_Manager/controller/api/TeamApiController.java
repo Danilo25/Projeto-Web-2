@@ -1,7 +1,7 @@
-package br.com.ufrn.imd.Project_Manager.controller;
+package br.com.ufrn.imd.Project_Manager.controller.api;
 
-import br.com.ufrn.imd.Project_Manager.dtos.TeamRequest;
-import br.com.ufrn.imd.Project_Manager.dtos.TeamResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TeamRequest;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TeamResponse;
 import br.com.ufrn.imd.Project_Manager.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
 import java.util.Set;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/teams")
