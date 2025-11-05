@@ -1,0 +1,60 @@
+<div th:fragment="createProjectModal">
+    <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="createProjectModalLabel">
+                        <i class="bi bi-folder-plus me-2"></i> Criar Novo Projeto
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="projectForm">
+                        <div class="mb-3">
+                            <label for="projectName" class="form-label fw-semibold">Nome do Projeto *</label>
+                            <input type="text" id="projectName" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="projectDescription" class="form-label fw-semibold">Descrição</label>
+                            <textarea id="projectDescription" name="description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label for="initialDate" class="form-label fw-semibold">Data Inicial</label>
+                                <input type="date" id="initialDate" name="initialDate" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label for="finalDate" class="form-label fw-semibold">Data Final</label>
+                                <input type="date" id="finalDate" name="finalDate" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label for="status" class="form-label fw-semibold">Status</label>
+                            <select id="status" name="status" class="form-select">
+                                <option>Planejado</option>
+                                <option>Em andamento</option>
+                                <option>Concluído</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label for="teamSelect" class="form-label fw-semibold">Equipe</label>
+                            <select id="teamSelect" name="teamId" class="form-select" required>
+                                <option value="">Carregando equipes...</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveProjectBtn">Salvar Projeto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
