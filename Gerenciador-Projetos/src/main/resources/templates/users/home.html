@@ -6,302 +6,112 @@
     <title>Home - Gerenciador de Projetos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
           rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
           crossorigin="anonymous">
-    
-    <style>
-        body {
-            font-size: .875rem;
-            min-height: 100vh;
-            background-color: #f8f9fa;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #fff;
-        }
-
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .nav-link.active {
-            color: #0d6efd;
-        }
-        
-        .main-content {
-            padding-top: 24px;
-        }
-
-        #teamCarousel {
-            padding: 0 4rem; 
-        }
-
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            background-color: #555;
-            border-radius: 50%;
-            padding: 15px;
-            background-size: 50% 50%;
-        }
-
-        .carousel-item .card {
-            width: 20rem; 
-            min-height: 180px;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
 
 <span id="user-context" th:data-userid="${userId}" class="d-none"></span>
 
-<div class="container-fluid">
-    <div class="row">
-        
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <div class="position-sticky pt-3 sidebar-sticky">
-                
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-2 text-muted text-uppercase">
-                    <span>Menu</span>
-                </h6>
-                
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" th:href="@{/web/home/{id}(id=${userId})}">
-                            <i class="bi bi-house-door"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/web/profile/{id}(id=${userId})}"> <i class="bi bi-person"></i>
-                            Perfil
-                        </a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="/"> Sair
-                        </a>
-                    </li>
-                </ul>
-            </div>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+
+        <nav class="sidebar d-flex flex-column">
+            <h6 class="sidebar-heading">Menu</h6>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/web/home/{id}(id=${userId})}">
+                        <i class="bi bi-house-door-fill"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/web/profile/{id}(id=${userId})}">
+                        <i class="bi bi-person-circle"></i> Perfil
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </li>
+            </ul>
         </nav>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            
-            <h1 id="welcome-message">Carregando...</h1>
-            <p class="lead">Bem-vindo ao seu painel.</p>
+        <main class="main-content col">
+            <div class="d-flex flex-column">
 
-            <hr class="my-4">
+                <h1 id="welcome-message" class="mb-2">Carregando...</h1>
+                <p class="lead text-secondary">Bem-vindo ao seu painel.</p>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Minhas Equipes</h2>
-                <a th:href="@{/web/teams/register(creatorId=${userId})}" class="btn btn-success">
-                    Criar Nova Equipe
-                </a>
-            </div>
-            <div id="teamCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner" id="teams-carousel-inner">
-                    
-                    <div class="carousel-item active">
-                        <div class="d-flex justify-content-center p-5">
-                            <div class="card">
-                                <div class="card-body text-center">
-                                    <p>Carregando equipes...</p>
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Minhas Equipes</h2>
+                    <button class="btn btn-create" data-bs-toggle="modal" data-bs-target="#createTeamModal">
+                        <i class="bi bi-plus-circle me-1"></i> Nova Equipe
+                    </button>
+                </div>
+
+                <div id="teamCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" id="teams-carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="d-flex justify-content-center p-5">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <p>Carregando equipes...</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <button class="carousel-control-prev" type="button" data-bs-target="#teamCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#teamCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Próximo</span>
+                    </button>
                 </div>
-                
-                <button class="carousel-control-prev" type="button" data-bs-target="#teamCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#teamCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Próximo</span>
-                </button>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Meus Projetos</h2>
+                    <button class="btn btn-create" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                        <i class="bi bi-plus-circle me-1"></i> Novo Projeto
+                    </button>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped align-middle" id="projectsTable">
+                        <thead class="table-primary">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Data Final</th>
+                            <th>Equipe</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Carregando projetos...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
             </div>
-
-            <hr class="my-4">
-
-            <h2>Meus Projetos</h2>
-            <div id="projects-list" class="row">
-                <p>Carregando projetos...</p>
-            </div>
-
         </main>
     </div>
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-
-<script>
-    const welcomeMessageElement = document.getElementById('welcome-message');
-    const teamsCarouselInner = document.getElementById('teams-carousel-inner');
-    const projectsListDiv = document.getElementById('projects-list');
-    const userId = document.getElementById('user-context').getAttribute('data-userid');
-
-    async function fetchUserDetails() {
-        if (!userId || isNaN(userId)) {
-            welcomeMessageElement.textContent = 'Erro: ID de usuário inválido.';
-            return;
-        }
-        try {
-            const apiUrl = `/api/users/${userId}`;
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error('Usuário não encontrado');
-            
-            const userData = await response.json();
-            if (userData && userData.name) {
-                welcomeMessageElement.textContent = `Bem Vindo, ${userData.name}!`;
-            } else {
-                welcomeMessageElement.textContent = 'Bem Vindo!';
-            }
-        } catch (error) {
-            console.error('Erro ao buscar detalhes do usuário:', error);
-            welcomeMessageElement.textContent = 'Erro ao carregar dados do usuário.';
-        }
-    }
-    async function fetchUserTeams() {
-        if (!userId) return [];
-        
-        try {
-            const response = await fetch(`/api/teams/user/${userId}`);
-            if (!response.ok) throw new Error(`Erro ${response.status} ao buscar equipes.`);
-
-            const teams = await response.json();
-            
-            teamsCarouselInner.innerHTML = '';
-            
-            if (!teams || teams.length === 0) {
-                teamsCarouselInner.innerHTML = `
-                    <div class="carousel-item active">
-                        <div class="d-flex justify-content-center p-5">
-                            <div class="card">
-                                <div class="card-body text-center">
-                                    <p class="card-text">Você ainda não faz parte de nenhuma equipe.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return [];
-            }
-
-            teams.forEach((team, index) => {
-                const isActive = index === 0 ? 'active' : '';
-                const cardHtml = `
-                    <div class="carousel-item ${isActive}">
-                        <div class="d-flex justify-content-center p-5">
-                            <div class="card">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <div>
-                                        <h5 class="card-title">${team.name}</h5>
-                                        <p class="card-text">${team.description || 'Sem descrição.'}</p>
-                                    </div>
-                                    <a href="/web/teams/edit/${team.id}" class="btn btn-primary btn-sm mt-3">Ver Equipe</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                teamsCarouselInner.innerHTML += cardHtml;
-            });
-            
-            return teams; 
-
-        } catch (error) {
-            console.error('Erro ao buscar equipes:', error);
-            teamsCarouselInner.innerHTML = `
-                <div class="carousel-item active">
-                    <div class="d-flex justify-content-center p-5">
-                        <div class="card">
-                            <div class="card-body text-center text-danger">
-                                <p>Não foi possível carregar as equipes.</p>
-                                <small>${error.message}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            return [];
-        }
-    }
-
-    async function fetchUserProjects(userTeams) {
-        if (!userTeams || userTeams.length === 0) {
-            projectsListDiv.innerHTML = '<p>Você não tem projetos (pois não está em nenhuma equipe).</p>';
-            return;
-        }
-        projectsListDiv.innerHTML = '<p>Carregando projetos...</p>';
-
-        const userTeamIds = new Set(userTeams.map(team => team.id));
-
-        try {
-            const response = await fetch('/projects');
-            if (!response.ok) throw new Error('Erro ao buscar projetos');
-            
-            const allProjects = await response.json(); 
-            const userProjects = allProjects.filter(project => userTeamIds.has(project.teamId));
-
-            projectsListDiv.innerHTML = ''; 
-
-            if (userProjects.length === 0) {
-                projectsListDiv.innerHTML = '<p>Nenhum projeto encontrado para suas equipes.</p>';
-                return;
-            }
-
-            userProjects.forEach(project => {
-                const cardHtml = `
-                    <div class="col-md-6 col-lg-4 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">${project.name}</h5>
-                                <p class="card-text">${project.description || 'Sem descrição.'}</p>
-                                <span class="badge bg-info text-dark">${project.status || 'N/A'}</span>
-                            </div>
-                            <div class="card-footer">
-                                <a href="/web/projects/edit/${project.id}" class="btn btn-primary btn-sm">Ver Projeto</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                projectsListDiv.innerHTML += cardHtml;
-            });
-
-        } catch (error) {
-            console.error('Erro ao buscar projetos:', error);
-            projectsListDiv.innerHTML = '<p class="text-danger">Não foi possível carregar os projetos.</p>';
-        }
-    }
-
-    async function loadDashboard() {
-        await fetchUserDetails();
-        const teams = await fetchUserTeams();
-        await fetchUserProjects(teams);
-    }
-
-    document.addEventListener('DOMContentLoaded', loadDashboard);
-</script>
-
+<div th:replace="~{fragments/create-project-modal :: createProjectModal}"></div>
+<div th:replace="~{fragments/create-team-modal :: createTeamModal}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script type="module" src="/js/main.js"></script>
 </body>
 </html>

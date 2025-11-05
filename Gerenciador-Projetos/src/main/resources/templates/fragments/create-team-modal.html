@@ -1,0 +1,70 @@
+<div th:fragment="createTeamModal">
+    <div class="modal fade" id="createTeamModal" tabindex="-1" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="createTeamModalLabel">
+                        <i class="bi bi-people-fill me-2"></i> Criar Nova Equipe
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="alert-placeholder"></div>
+
+                    <form id="team-form">
+                        <input type="hidden" id="creatorId" th:value="${userId}">
+
+                        <div class="mb-3">
+                            <label for="teamName" class="form-label fw-semibold">Nome da Equipe *</label>
+                            <input type="text" class="form-control" id="teamName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="teamDescription" class="form-label fw-semibold">Descrição</label>
+                            <textarea class="form-control" id="teamDescription" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Membros</label>
+                            <ul id="added-members-list" class="list-group mb-2" style="max-height: 250px; overflow-y: auto;">
+                                <li class="list-group-item d-flex justify-content-between align-items-center" th:data-userid="${userId}">
+                                    <span id="creator-name">Carregando criador...</span>
+                                    <span class="badge bg-primary rounded-pill">Criador</span>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                                + Adicionar Membro
+                            </button>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary ms-2">Salvar Equipe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-sm border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="addMemberModalLabel">
+                        <i class="bi bi-person-plus me-2"></i> Adicionar Membros
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="user-search-input" class="form-label fw-semibold">Buscar por nome:</label>
+                        <input type="text" class="form-control" id="user-search-input" placeholder="Digite um nome...">
+                    </div>
+                    <ul id="user-search-results" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
