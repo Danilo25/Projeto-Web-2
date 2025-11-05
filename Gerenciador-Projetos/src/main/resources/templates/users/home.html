@@ -97,18 +97,6 @@
                         </a>
                     </li>
                 </ul>
-                
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-2 text-muted text-uppercase">
-                    <span>Gerenciar</span>
-                </h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/web/teams/new(creatorId=${userId})}">
-                            Criar Nova Equipe
-                        </a>
-                    </li>
-                </ul>
-
             </div>
         </nav>
 
@@ -121,7 +109,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Minhas Equipes</h2>
-                <a th:href="@{/web/teams/new(creatorId=${userId})}" class="btn btn-success">
+                <a th:href="@{/web/teams/register(creatorId=${userId})}" class="btn btn-success">
                     Criar Nova Equipe
                 </a>
             </div>
