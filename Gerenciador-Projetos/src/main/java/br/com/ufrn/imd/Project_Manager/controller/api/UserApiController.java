@@ -44,7 +44,8 @@ public class UserApiController {
     @GetMapping("/{id}")
     @Operation(summary = "Busca um usuário por ID", description = "Retorna os detalhes de um usuário específico.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     public ResponseEntity<UserResponse> getUserById(
@@ -73,7 +74,7 @@ public class UserApiController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Atualiza um usuário existente", description = "Atualiza os dados de um usuário pelo seu ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",

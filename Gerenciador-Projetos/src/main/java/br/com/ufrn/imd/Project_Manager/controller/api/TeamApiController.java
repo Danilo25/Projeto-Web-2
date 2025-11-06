@@ -46,7 +46,8 @@ public class TeamApiController {
     @GetMapping("/{id}")
     @Operation(summary = "Busca uma equipe por ID", description = "Retorna os detalhes de uma equipe específica, incluindo os IDs dos membros.")
     @ApiResponses(value = { 
-            @ApiResponse(responseCode = "200", description = "Equipe encontrada"),
+            @ApiResponse(responseCode = "200", description = "Equipe encontrada",
+                    content = @Content(schema = @Schema(implementation = TeamResponse.class))),
             @ApiResponse(responseCode = "404", description = "Equipe não encontrada")
      })
     public ResponseEntity<?> getTeamById(@Parameter(description = "ID da equipe a ser buscada", required = true) @PathVariable Long id) {
@@ -84,7 +85,7 @@ public class TeamApiController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Atualiza uma equipe existente", description = "Atualiza os dados de uma equipe.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Equipe atualizada com sucesso",
@@ -117,8 +118,7 @@ public class TeamApiController {
             @ApiResponse(responseCode = "204", description = "Equipe deletada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Equipe não encontrada")
     })
-    public ResponseEntity<?> deleteTeam(
-            @Parameter(description = "ID da equipe a ser deletada", required = true) @PathVariable Long id) {
+    public ResponseEntity<?> deleteTeam(@Parameter(description = "ID da equipe a ser deletada", required = true) @PathVariable Long id) {
         try {
             teamService.deleteTeam(id);
             return ResponseEntity.noContent().build();

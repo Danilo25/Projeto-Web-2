@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tags")
+@RequestMapping("/api/tags")
 @RequiredArgsConstructor
 @Tag(name = "Etiquetas", description = "Endpoints para gerenciamento de etiquetas das tarefas")
 public class TagApiController {

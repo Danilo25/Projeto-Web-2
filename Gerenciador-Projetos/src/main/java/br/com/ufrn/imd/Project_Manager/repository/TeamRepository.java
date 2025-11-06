@@ -9,11 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.Set;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 @Repository
-public interface TeamRepository extends JpaRepository<Team, Long>, JpaSpecificationExecutor<Team> {
+public interface TeamRepository extends JpaRepository<Team, Long> {
     
     Set<Team> findByUsers_Id(Long userId);
     boolean existsByNameIgnoreCase(String name);
@@ -28,6 +27,6 @@ public interface TeamRepository extends JpaRepository<Team, Long>, JpaSpecificat
     """)
     Page<Team> searchTeams(@Param("name") String name,
                            @Param("memberId") Long memberId,
-                            Pageable pageable);
+                           Pageable pageable);
     
 }
