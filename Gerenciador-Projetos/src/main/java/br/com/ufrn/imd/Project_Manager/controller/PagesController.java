@@ -31,6 +31,13 @@ public class PagesController {
         return "teams/team-register";
     }
 
+    @GetMapping("/web/user/{userId}/team/{teamId}")
+    public String showTeamDetailPage(@PathVariable Long userId, @PathVariable Long teamId, Model model) {
+        model.addAttribute("userId", userId);
+        model.addAttribute("teamId", teamId);
+        return "teams/team-details";
+    }
+
     @GetMapping("/web/profile/{id}")
     public String showProfilePage(@PathVariable Long id, Model model) {
         model.addAttribute("userId", id);
