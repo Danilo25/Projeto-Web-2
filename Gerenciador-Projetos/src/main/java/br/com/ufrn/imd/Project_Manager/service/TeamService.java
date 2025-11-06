@@ -45,75 +45,42 @@ public class TeamService {
         );
     }
 
-    @Transactional(readOnly = true)
+    public Page<TeamResponse> searchTeams(String name, Long memberId, Pageable pageable) {
+        Page<Team> teamsPage = teamRepository.searchTeams(name, memberId, pageable);
+        return teamsPage.map(this::toTeamResponse);
+    }
+
     public TeamResponse getTeamById(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found!"));
         return toTeamResponse(team);
     }
 
-    @Transactional(readOnly = true)
-    public Set<TeamResponse> findTeamsByUserId(Long userId) {
-        Set<Team> teams = teamRepository.findByUsers_Id(userId);
-        return teams.stream()
-                .map(this::toTeamResponse)
-                .collect(Collectors.toSet());
-    }
-
-    public Set<DashboardPageTeamResponse> findTeamsByUserIdForDashboardPage (Long userId) {
-        Set<Team> teams = teamRepository.findByUsers_Id(userId);
-        return teams.stream()
-                .map(team -> new DashboardPageTeamResponse(
-                        team.getId(),
-                        team.getName(),
-                        team.getDescription()
-                ))
-                .collect(Collectors.toSet());
-    }
-
-    @Transactional(readOnly = true)
-    public Page<TeamResponse> searchTeams(String name, Pageable pageable) {
-        Specification<Team> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (StringUtils.hasText(name)) {
-                predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("name")),
-                    "%" + name.toLowerCase() + "%"
-                ));
-            }
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-
-        Page<Team> teamsPage = teamRepository.findAll(spec, pageable);
-        return teamsPage.map(this::toTeamResponse);
-    }
-
-
     @Transactional
     public TeamResponse createTeam(TeamRequest teamRequest, Long creatorId){
         if (!StringUtils.hasText(teamRequest.name())) {
-             throw new IllegalArgumentException("O nome da equipe não pode ser vazio.");
+             throw new RuntimeException("O nome da equipe não pode ser vazio.");
         }
         if (teamRepository.existsByNameIgnoreCase(teamRequest.name())) {
             throw new RuntimeException("Conflito: Já existe uma equipe com o nome '" + teamRequest.name() + "'.");
         }
         User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Creator User not found with ID: " + creatorId));
+                .orElseThrow(() -> new RuntimeException("Nenhum usuário com o ID " + creatorId + " encontrado."));
 
         Team newTeam = new Team();
         newTeam.setName(teamRequest.name());
         newTeam.setDescription(teamRequest.description());
 
-        Set<User> teamMembers = new HashSet<>();
+        List<User> teamMembers = new ArrayList<>();
         teamMembers.add(creator);
         if (teamRequest.userIds() != null && !teamRequest.userIds().isEmpty()) {
             List<User> selectedUsers = userRepository.findAllById(teamRequest.userIds());
-            Set<Long> foundUserIds = selectedUsers.stream().map(User::getId).collect(Collectors.toSet());
+            List<Long> foundUserIds = selectedUsers.stream().map(User::getId).toList();
             List<Long> notFoundIds = teamRequest.userIds().stream()
                                         .filter(id -> !foundUserIds.contains(id))
                                         .toList();
             if (!notFoundIds.isEmpty()) {
-                 throw new RuntimeException("Não encontrado: Usuário(s) com ID(s) " + notFoundIds + " não encontrado(s).");
+                 throw new RuntimeException("Nenhum usuário com o(s) ID(s) " + notFoundIds + " encontrado(s).");
             }
             teamMembers.addAll(selectedUsers);
         }
@@ -125,12 +92,12 @@ public class TeamService {
     @Transactional
     public TeamResponse updateTeam(Long teamId, TeamRequest teamRequest) {
         Team existingTeam = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Team not found!"));
+                .orElseThrow(() -> new RuntimeException("Equipe não encontrada!"));
 
-        if (StringUtils.hasText(teamRequest.name()) && !teamRequest.name().equalsIgnoreCase(existingTeam.getName())) {
+        if (StringUtils.hasText(teamRequest.name()) && !teamRequest.name().equals(existingTeam.getName())) {
             Optional<Team> teamWithSameName = teamRepository.findByNameIgnoreCase(teamRequest.name());
             if (teamWithSameName.isPresent() && !teamWithSameName.get().getId().equals(teamId)) {
-                 throw new RuntimeException("Conflito: Já existe outra equipe com o nome '" + teamRequest.name() + "'.");
+                 throw new RuntimeException("Conflito: já existe outra equipe com o nome '" + teamRequest.name() + "'.");
             }
             existingTeam.setName(teamRequest.name());
         }
@@ -138,15 +105,15 @@ public class TeamService {
             existingTeam.setDescription(teamRequest.description());
         }
         if (teamRequest.userIds() != null) {
-            Set<User> newMembers = new HashSet<>();
+            List<User> newMembers = new ArrayList<>();
             if (!teamRequest.userIds().isEmpty()) {
                 List<User> users = userRepository.findAllById(teamRequest.userIds());
-                Set<Long> foundUserIds = users.stream().map(User::getId).collect(Collectors.toSet());
+                List<Long> foundUserIds = users.stream().map(User::getId).toList();
                 List<Long> notFoundIds = teamRequest.userIds().stream()
                                             .filter(id -> !foundUserIds.contains(id))
                                             .toList();
                 if (!notFoundIds.isEmpty()) {
-                     throw new RuntimeException("Não encontrado: Usuário(s) com ID(s) " + notFoundIds + " não encontrado(s).");
+                     throw new RuntimeException("Nenhum usuário com o(s) ID(s) " + notFoundIds + " encontrado(s).");
                  }
                 newMembers.addAll(users);
             }
@@ -160,7 +127,18 @@ public class TeamService {
     @Transactional
     public void deleteTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Team not found!"));
+                .orElseThrow(() -> new RuntimeException("Equipe não encontrada!"));
         teamRepository.delete(team);
+    }
+
+    public Set<DashboardPageTeamResponse> findTeamsByUserIdForDashboardPage (Long userId) {
+        Set<Team> teams = teamRepository.findByUsers_Id(userId);
+        return teams.stream()
+                .map(team -> new DashboardPageTeamResponse(
+                        team.getId(),
+                        team.getName(),
+                        team.getDescription()
+                ))
+                .collect(Collectors.toSet());
     }
 }

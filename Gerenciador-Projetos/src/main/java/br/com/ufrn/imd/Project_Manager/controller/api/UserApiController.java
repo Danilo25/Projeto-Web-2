@@ -28,13 +28,14 @@ public class UserApiController {
     private UserService userService;
 
     @GetMapping
-    @Operation(summary = "Lista ou pesquisa usuários por nome e cargo", description = "Retorna uma lista de todos os usuários, com filtros opcionais por nome e cargo.")
+    @Operation(summary = "Lista ou pesquisa usuários por nome e cargo",
+            description = "Retorna uma lista de todos os usuários, com filtros opcionais por nome e cargo.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
     })
     public ResponseEntity<Page<UserResponse>> getUsers(@Parameter(description = "Nome parcial para filtrar usuários (opcional)") @RequestParam(required = false) String name,
-                                                   @Parameter(description = "Cargo para filtrar usuários (opcional)") @RequestParam(required = false) String position,
-                                                   @PageableDefault(size = 20, sort = "name") Pageable pageable)
+                                                       @Parameter(description = "Cargo para filtrar usuários (opcional)") @RequestParam(required = false) String position,
+                                                       @PageableDefault(size = 20, sort = "name") Pageable pageable)
     {
         Page<UserResponse> users = userService.getUsers(name, position, pageable);
         return ResponseEntity.ok(users);
