@@ -49,64 +49,7 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
 
-<script>
-    const form = document.getElementById('register-form');
-    const alertPlaceholder = document.getElementById('alert-placeholder');
-
-    function showAlert(message, type = 'danger') {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = [
-            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-            `   <div>${message}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
-        ].join('');
-        alertPlaceholder.innerHTML = '';
-        alertPlaceholder.append(wrapper);
-    }
-
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const position = document.getElementById('position').value;
-
-        const userData = {
-            name: name,
-            email: email,
-            password: password,
-            position: position
-        };
-
-        try {
-            const response = await fetch('/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            });
-
-            if (response.status === 201) {
-                showAlert('Usuário cadastrado com sucesso! Redirecionando para login...', 'success');
-                form.reset();
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 2000);
-
-            } else {
-                const errorMessage = await response.text();
-                showAlert(errorMessage || 'Erro ao cadastrar usuário.');
-            }
-
-        } catch (error) {
-            console.error('Erro na requisição:', error);
-            showAlert('Erro de conexão. Tente novamente.');
-        }
-    });
-</script>
+<script type="module" src="/js/register.js"></script>
 
 </body>
 </html>

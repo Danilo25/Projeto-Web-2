@@ -1,0 +1,49 @@
+<div th:fragment="teamFormModal">
+    <div class="modal fade" id="teamFormModal" tabindex="-1" aria-labelledby="teamFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="teamFormModalLabel">Gerenciar Equipe</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="team-form-alert-placeholder" style="position: relative; z-index: 1057;"></div>
+
+                    <form id="team-form">
+                        <input type="hidden" id="teamId" />
+
+                        <div class="mb-3">
+                            <label for="teamName" class="form-label fw-semibold">Nome da Equipe *</label>
+                            <input type="text" class="form-control" id="teamName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="teamDescription" class="form-label fw-semibold">Descrição</label>
+                            <textarea class="form-control" id="teamDescription" rows="3"></textarea>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3 position-relative">
+                            <label for="team-member-search-input" class="form-label fw-semibold">Adicionar Membros</label>
+                            <input type="text" class="form-control" id="team-member-search-input" placeholder="Digite um nome para buscar..." autocomplete="off">
+                            <ul id="team-member-search-results" class="list-group mt-1" style="position: absolute; z-index: 1056; width: 100%;"></ul>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Membros Atuais</label>
+                            <ul id="team-members-list" class="list-group mb-2" style="max-height: 250px; overflow-y: auto;">
+                                </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary ms-2" id="save-team-btn">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,5 @@
-export function showAlert(message, type = 'danger') {
-    const alertPlaceholder = document.getElementById('alert-placeholder');
+export function showAlert(message, type = 'danger', element = null) {
+    const alertPlaceholder = element || document.getElementById('alert-placeholder');
     if (!alertPlaceholder) return;
 
     const wrapper = document.createElement('div');

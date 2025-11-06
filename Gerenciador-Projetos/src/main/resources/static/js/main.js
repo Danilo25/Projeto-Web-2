@@ -5,6 +5,8 @@ import { fetchAllProjects, createProject } from './api/projectApi.js';
 import { renderWelcomeMessage, showUserError } from './ui/userUi.js';
 import { renderTeamsCarousel } from './ui/teamUi.js';
 import { renderProjects } from './ui/projectUi.js';
+import { showAlert } from './ui/showAlert.js';
+import { initializeMemberSearch, addMemberToList, createMemberLi } from './ui/teamModalUi.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const userId = document.getElementById('user-context')?.dataset.userid;
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderWelcomeMessage(user);
 
         const teams = await fetchUserTeams(userId);
-        renderTeamsCarousel(teams);
+        renderTeamsCarousel(teams, userId);
 
         const allProjects = await fetchAllProjects();
         const teamIds = new Set(teams.map(t => t.id));
@@ -28,8 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderProjects(userProjects, teams);
 
         fillSelectTimes(teams);
+        
+        setupTeamModal(user);
 
-        document.getElementById('creator-name').textContent = user.name;
     } catch (e) {
         console.error(e);
         showUserError('Erro ao carregar dados.');
@@ -75,31 +78,90 @@ document.getElementById('saveProjectBtn')?.addEventListener('click', async () =>
     }
 });
 
-document.getElementById('team-form')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
+function setupTeamModal(user) {
+    const teamModalEl = document.getElementById('teamFormModal');
+    if (!teamModalEl) return;
+    
+    const teamModal = new bootstrap.Modal(teamModalEl);
 
-    const userId = document.getElementById('user-context')?.dataset.userid;
-    const name = document.getElementById('name').value.trim();
-    const description = document.getElementById('description').value.trim();
+    teamModalEl.addEventListener('show.bs.modal', (event) => {
+        if (event.relatedTarget && event.relatedTarget.id === 'createTeamBtn') {
+            
+            document.getElementById('teamFormModalLabel').textContent = 'Criar Nova Equipe';
+            document.getElementById('save-team-btn').textContent = 'Salvar Equipe';
+            document.getElementById('team-form').reset();
+            document.getElementById('teamId').value = '';
+            document.getElementById('team-form-alert-placeholder').innerHTML = '';
+            
+            const membersList = document.getElementById('team-members-list');
+            membersList.innerHTML = ''; 
+
+            if (user) {
+                const creatorLi = createMemberLi(user.id, user.name, user.position);
+                creatorLi.querySelector('.btn-remove-member').remove(); 
+                creatorLi.insertAdjacentHTML('beforeend', '<span class="badge bg-primary rounded-pill">Criador</span>');
+                membersList.appendChild(creatorLi);
+            }
+            
+            document.getElementById('team-form').onsubmit = (e) => handleCreateTeamSubmit(e, user.id, teamModal);
+        }
+    });
+
+    initializeMemberSearch();
+    initializeMemberRemoval(user.id); 
+}
+
+async function handleCreateTeamSubmit(event, creatorId, modalInstance) {
+    event.preventDefault();
+    const alertPlaceholder = document.getElementById('team-form-alert-placeholder');
+    alertPlaceholder.innerHTML = '';
+
+    const name = document.getElementById('teamName').value.trim();
+    const description = document.getElementById('teamDescription').value.trim();
 
     if (!name) {
-        alert('Por favor, insira um nome para a equipe.');
+        showAlert('Por favor, insira um nome para a equipe.', 'warning', alertPlaceholder);
         return;
     }
+    
+    const memberItems = document.querySelectorAll('#team-members-list li[data-member-id]');
+    const memberIds = Array.from(memberItems).map(li => 
+        parseInt(li.dataset.memberId, 10)
+    );
+    const uniqueMemberIds = [...new Set(memberIds)];
 
-    const team = {
+    const teamRequest = {
         name,
         description,
-        creatorId: userId,
-        members: [{ id: userId }]
+        creatorId: creatorId,
+        userIds: uniqueMemberIds
     };
 
     try {
-        await createTeam(team);
-        alert('Equipe criada com sucesso!');
-        window.location.reload();
+        await createTeam(teamRequest);
+        modalInstance.hide();
+        window.location.reload(); 
     } catch (e) {
         console.error(e);
-        alert('Erro ao criar equipe: ' + e.message);
+        showAlert(e.message || 'Erro ao criar equipe.', 'danger', alertPlaceholder);
     }
-});
+}
+
+function initializeMemberRemoval(creatorIdToProtect) {
+    const membersList = document.getElementById('team-members-list');
+    const alertPlaceholder = document.getElementById('team-form-alert-placeholder');
+
+    membersList.addEventListener('click', (e) => {
+        const removeButton = e.target.closest('.btn-remove-member');
+        if (removeButton) {
+            const memberItem = removeButton.closest('li[data-member-id]');
+            const memberId = parseInt(memberItem.dataset.memberId, 10);
+
+            if (creatorIdToProtect && memberId === creatorIdToProtect) {
+                showAlert('O criador não pode ser removido da equipe.', 'warning', alertPlaceholder);
+                return;
+            }
+            memberItem.remove();
+        }
+    });
+}
