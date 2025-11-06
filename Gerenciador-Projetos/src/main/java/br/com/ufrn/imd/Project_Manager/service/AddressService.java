@@ -68,7 +68,7 @@ public class AddressService {
     @Transactional
     public AddressResponse createAddressForUser(AddressRequest addressRequest, Long currentUserId) {
         User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Usuário autenticado com ID '" + currentUserId + "' não encontrado no banco de dados.")); // Mensagem mais clara
+                .orElseThrow(() -> new RuntimeException("Não encontrado: Usuário autenticado com ID '" + currentUserId + "' não encontrado no banco de dados."));
 
         if (addressRepository.findByUserId(currentUserId).isPresent()) {
             throw new RuntimeException("Conflito: Você (usuário ID: " + currentUserId + ") já possui um endereço cadastrado.");
