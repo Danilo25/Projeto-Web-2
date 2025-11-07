@@ -71,7 +71,6 @@ document.getElementById('saveProjectBtn')?.addEventListener('click', async () =>
 
     try {
         await createProject(project);
-        alert('Projeto criado com sucesso!');
         window.location.reload();
     } catch (e) {
         alert('Erro ao criar projeto: ' + e.message);

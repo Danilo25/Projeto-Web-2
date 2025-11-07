@@ -2,6 +2,7 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.api.FrameRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.FrameResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TaskResponse;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
@@ -28,7 +29,18 @@ public class FrameService {
                 e.getId(),
                 e.getName(),
                 e.getOrderIndex(),
-                e.getProject().getId()
+                e.getProject().getId(),
+                e.getTasks() != null ? e.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList(): null
         )).toList();
     }
 
@@ -40,7 +52,18 @@ public class FrameService {
                 frame.getId(),
                 frame.getName(),
                 frame.getOrderIndex(),
-                frame.getProject().getId()
+                frame.getProject().getId(),
+                frame.getTasks() != null ? frame.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList() : null
         );
     }
 
@@ -49,7 +72,18 @@ public class FrameService {
                 e.getId(),
                 e.getName(),
                 e.getOrderIndex(),
-                e.getProject().getId()
+                e.getProject().getId(),
+                e.getTasks() != null ? e.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList() : null
         )).toList();
     }
 
@@ -72,7 +106,19 @@ public class FrameService {
                 newFrame.getId(),
                 newFrame.getName(),
                 newFrame.getOrderIndex(),
-                newFrame.getProject().getId()
+                newFrame.getProject().getId(),
+                newFrame.getTasks() != null ? newFrame.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList() : null
+
         );
     }
 
@@ -100,7 +146,18 @@ public class FrameService {
                 updatedFrame.getId(),
                 updatedFrame.getName(),
                 updatedFrame.getOrderIndex(),
-                updatedFrame.getProject().getId()
+                updatedFrame.getProject().getId(),
+                updatedFrame.getTasks() != null ? updatedFrame.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList() : null
         );
     }
 
@@ -109,5 +166,28 @@ public class FrameService {
         Frame frame = this.frameRepository.findById(frameId)
                 .orElseThrow(() -> new RuntimeException("Frame not found!"));
         this.frameRepository.delete(frame);
+    }
+
+    @Transactional
+    public List<FrameResponse> findByProjectOrderByOrderIndex(Long projectId) {
+        List<Frame> frames = frameRepository.findByProjectIdOrderByOrderIndexAsc(projectId);
+
+        return frames.stream().map(e -> new FrameResponse(
+                e.getId(),
+                e.getName(),
+                e.getOrderIndex(),
+                e.getProject().getId(),
+                e.getTasks() != null ? e.getTasks().stream().map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getInitialDate(),
+                        task.getFinalDate(),
+                        task.getStatus(),
+                        task.getFrame() != null ? task.getFrame().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getId() : null,
+                        task.getAssignee() != null ? task.getAssignee().getName() : null
+                )).toList() : null
+        )).toList();
     }
 }

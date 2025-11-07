@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface FrameRepository extends JpaRepository<Frame, Long> {
     List<Frame> findByNameIgnoreCase(String name);
+    List<Frame> findByProjectIdOrderByOrderIndexAsc(Long projectId);
 }

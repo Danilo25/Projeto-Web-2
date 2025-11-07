@@ -37,7 +37,8 @@ public class TaskService {
                 e.getFinalDate(),
                 e.getStatus(),
                 e.getFrame() != null ? e.getFrame().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getId() : null
+                e.getAssignee() != null ? e.getAssignee().getId() : null,
+                e.getAssignee() != null ? e.getAssignee().getName() : null
         )).toList();
     }
 
@@ -53,7 +54,8 @@ public class TaskService {
                 task.getFinalDate(),
                 task.getStatus(),
                 task.getFrame() != null ? task.getFrame().getId() : null,
-                task.getAssignee() != null ? task.getAssignee().getId() : null
+                task.getAssignee() != null ? task.getAssignee().getId() : null,
+                task.getAssignee() != null ? task.getAssignee().getName() : null
         );
     }
 
@@ -66,7 +68,8 @@ public class TaskService {
                 e.getFinalDate(),
                 e.getStatus(),
                 e.getFrame() != null ? e.getFrame().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getId() : null
+                e.getAssignee() != null ? e.getAssignee().getId() : null,
+                e.getAssignee() != null ? e.getAssignee().getName() : null
         )).toList();
     }
 
@@ -102,7 +105,8 @@ public class TaskService {
                 newTask.getFinalDate(),
                 newTask.getStatus(),
                 newTask.getFrame() != null ? newTask.getFrame().getId() : null,
-                newTask.getAssignee() != null ? newTask.getAssignee().getId() : null
+                newTask.getAssignee() != null ? newTask.getAssignee().getId() : null,
+                newTask.getAssignee() != null ? newTask.getAssignee().getName() : null
         );
     }
 
@@ -148,7 +152,8 @@ public class TaskService {
                 updatedTask.getFinalDate(),
                 updatedTask.getStatus(),
                 updatedTask.getFrame() != null ? updatedTask.getFrame().getId() : null,
-                updatedTask.getAssignee() != null ? updatedTask.getAssignee().getId() : null
+                updatedTask.getAssignee() != null ? updatedTask.getAssignee().getId() : null,
+                updatedTask.getAssignee() != null ? updatedTask.getAssignee().getName() : null
         );
     }
 
