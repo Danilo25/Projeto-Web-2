@@ -146,17 +146,4 @@ public class ProjectService {
             throw new RuntimeException("Frame is not associated with the specified project!");
         }
     }
-
-    public List<DashboardPageProjectResponse> getProjectsByTeamIdForDashboardPage(Long teamId) {
-        List<Project> projects = this.projectRepository.findByTeamId(teamId);
-
-        return projects.stream().map(e -> new DashboardPageProjectResponse(
-                e.getId(),
-                e.getName(),
-                e.getTeam().getName(),
-                e.getFinalDate(),
-                e.getStatus()
-        )).toList();
-    }
-
 }

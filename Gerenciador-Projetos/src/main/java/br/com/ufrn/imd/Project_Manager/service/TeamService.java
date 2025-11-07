@@ -130,15 +130,4 @@ public class TeamService {
                 .orElseThrow(() -> new RuntimeException("Equipe não encontrada!"));
         teamRepository.delete(team);
     }
-
-    public Set<DashboardPageTeamResponse> findTeamsByUserIdForDashboardPage (Long userId) {
-        Set<Team> teams = teamRepository.findByUsers_Id(userId);
-        return teams.stream()
-                .map(team -> new DashboardPageTeamResponse(
-                        team.getId(),
-                        team.getName(),
-                        team.getDescription()
-                ))
-                .collect(Collectors.toSet());
-    }
 }
