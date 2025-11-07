@@ -1,0 +1,51 @@
+<div th:fragment="createTaskModal">
+    <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-semibold" id="createTaskModalLabel">Criar Nova Tarefa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="createTaskForm">
+                        <input type="hidden" name="projectId" th:value="${project.id}">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Título *</label>
+                            <input type="text" class="form-control" name="title" placeholder="Ex: Implementar login de usuário" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Descrição</label>
+                            <textarea class="form-control" name="description" rows="3" placeholder="Descreva brevemente a tarefa, detalhes ou instruções..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Quadro *</label>
+                            <select class="form-select" name="frameId" required>
+                                <option value="">Selecione...</option>
+                                <option th:each="frame : ${frames}" th:value="${frame.id}" th:text="${frame.name}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Responsável</label>
+                            <input type="text" class="form-control" name="assignedTo" placeholder="Ex: João Silva">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Data de Entrega</label>
+                            <input type="date" class="form-control" name="dueDate">
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success ms-2">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
