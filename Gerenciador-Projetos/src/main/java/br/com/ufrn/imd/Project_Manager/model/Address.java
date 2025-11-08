@@ -20,6 +20,18 @@ public class Address {
     @JsonIgnore
     private User user;
 
+    public Address() {
+    }
+
+    public Address(String publicPlace, String district, String city, String state, String zipCode, User user) {
+        this.publicPlace = publicPlace;
+        this.district = district;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.user = user;
+    }
+
     public Long getId() {
         return id;
     }
