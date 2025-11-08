@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const user = await fetchUserDetails(userId);
         renderWelcomeMessage(user);
 
-        const teams = await fetchUserTeams(userId);
+        const teamsPage = await fetchUserTeams(userId); 
+        
+        const teams = teamsPage.content;
         renderTeamsCarousel(teams, userId);
 
         const allProjects = await fetchAllProjects();
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupTeamModal(user);
 
     } catch (e) {
+        console.error("ERRO DETALHADO NO CATCH (main.js):", e);
         console.error(e);
         showUserError('Erro ao carregar dados.');
     }
