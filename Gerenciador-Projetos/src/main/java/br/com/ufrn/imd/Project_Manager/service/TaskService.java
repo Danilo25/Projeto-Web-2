@@ -26,26 +26,7 @@ public class TaskService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<TaskResponse> findByName(String taskName) {
-        List<Task> tasks = this.taskRepository.findByNameIgnoreCase(taskName);
-
-        return tasks.stream().map(e -> new TaskResponse(
-                e.getId(),
-                e.getName(),
-                e.getDescription(),
-                e.getInitialDate(),
-                e.getFinalDate(),
-                e.getStatus(),
-                e.getFrame() != null ? e.getFrame().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getName() : null
-        )).toList();
-    }
-
-    public TaskResponse getTaskById(Long taskId) {
-        Task task = this.taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found!"));
-
+    public TaskResponse toTaskResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
                 task.getName(),
@@ -59,18 +40,21 @@ public class TaskService {
         );
     }
 
+    public List<TaskResponse> findByName(String taskName) {
+        List<Task> tasks = this.taskRepository.findByNameIgnoreCase(taskName);
+
+        return tasks.stream().map(this::toTaskResponse).toList();
+    }
+
+    public TaskResponse getTaskById(Long taskId) {
+        Task task = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found!"));
+
+        return toTaskResponse(task);
+    }
+
     public List<TaskResponse> listAllTasks() {
-        return this.taskRepository.findAll().stream().map(e -> new TaskResponse(
-                e.getId(),
-                e.getName(),
-                e.getDescription(),
-                e.getInitialDate(),
-                e.getFinalDate(),
-                e.getStatus(),
-                e.getFrame() != null ? e.getFrame().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getId() : null,
-                e.getAssignee() != null ? e.getAssignee().getName() : null
-        )).toList();
+        return this.taskRepository.findAll().stream().map(this::toTaskResponse).toList();
     }
 
     @Transactional
@@ -97,17 +81,7 @@ public class TaskService {
 
         newTask = this.taskRepository.save(newTask);
 
-        return new TaskResponse(
-                newTask.getId(),
-                newTask.getName(),
-                newTask.getDescription(),
-                newTask.getInitialDate(),
-                newTask.getFinalDate(),
-                newTask.getStatus(),
-                newTask.getFrame() != null ? newTask.getFrame().getId() : null,
-                newTask.getAssignee() != null ? newTask.getAssignee().getId() : null,
-                newTask.getAssignee() != null ? newTask.getAssignee().getName() : null
-        );
+        return toTaskResponse(newTask);
     }
 
     @Transactional
@@ -144,17 +118,7 @@ public class TaskService {
 
         Task updatedTask = this.taskRepository.save(oldTask);
 
-        return new TaskResponse(
-                updatedTask.getId(),
-                updatedTask.getName(),
-                updatedTask.getDescription(),
-                updatedTask.getInitialDate(),
-                updatedTask.getFinalDate(),
-                updatedTask.getStatus(),
-                updatedTask.getFrame() != null ? updatedTask.getFrame().getId() : null,
-                updatedTask.getAssignee() != null ? updatedTask.getAssignee().getId() : null,
-                updatedTask.getAssignee() != null ? updatedTask.getAssignee().getName() : null
-        );
+        return toTaskResponse(updatedTask);
     }
 
     @Transactional
