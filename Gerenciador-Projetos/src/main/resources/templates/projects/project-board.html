@@ -40,7 +40,9 @@
                  class="kanban-card p-3 mb-3"
                  draggable="true"
                  th:attr="data-task-id=${task.id}"
-                 ondragstart="dragTask(event)">
+                 ondragstart="this.dataset.dragging = true; dragTask(event);"
+                 ondragend="this.dataset.dragging = false;"
+                 onclick="if (this.dataset.dragging !== 'true') openTaskDetails(this.dataset.taskId)">
 
                 <h6 class="mb-1 fw-semibold text-wrap" th:text="${task.name}">Nome da Tarefa</h6>
 
@@ -77,6 +79,9 @@
                     <span th:text="${task.assigneeName() != null ? task.assigneeName() : 'Não atribuído'}"></span>
                 </p>
             </div>
+        </div>
+        </div>
+    </div>
 
             <div th:if="${#lists.isEmpty(frames)}" class="text-center text-muted mt-4">
             Nenhum quadro criado ainda. Clique em <b>“Criar Quadro”</b> para começar.
@@ -86,10 +91,12 @@
 
 <div th:replace="~{fragments/create-frame-modal :: createFrameModal}"></div>
 <div th:replace="~{fragments/create-task-modal :: createTaskModal}"></div>
+<div th:replace="~{fragments/task-details-modal :: taskDetailsModal}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/ui/frameModal.js"></script>
 <script src="/js/ui/taskModal.js"></script>
 <script src="/js/ui/kanbanDrag.js"></script>
+<script src="/js/ui/taskDetailsModal.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
