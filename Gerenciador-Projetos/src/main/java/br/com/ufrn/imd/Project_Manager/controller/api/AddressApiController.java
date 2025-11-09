@@ -71,7 +71,7 @@ public class AddressApiController {
             @ApiResponse(responseCode = "409", description = "Conflito (usuário já possui endereço OU endereço duplicado)"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado ao criar endereço")
     })
-    public ResponseEntity<?> createAddressForUserId(@RequestBody AddressRequest addressRequest) {
+    public ResponseEntity<?> createAddress(@RequestBody AddressRequest addressRequest) {
         try {
             AddressResponse newAddress = addressService.createAddress(addressRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(newAddress);

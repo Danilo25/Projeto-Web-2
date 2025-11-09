@@ -2,11 +2,20 @@ package br.com.ufrn.imd.Project_Manager.repository;
 
 import br.com.ufrn.imd.Project_Manager.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByTextContainingIgnoreCase(String text);
+    @Query("""
+    SELECT c FROM Comment c
+        WHERE :taskId IS NULL OR c.task.id = :taskId
+            AND (:text IS NULL OR LOWER(c.text) LIKE LOWER(CONCAT('%', :text, '%')))
+    """)
+    List<Comment> searchComments(@Param("taskId") Long taskId,
+                                 @Param("text") String text);
+
 }
