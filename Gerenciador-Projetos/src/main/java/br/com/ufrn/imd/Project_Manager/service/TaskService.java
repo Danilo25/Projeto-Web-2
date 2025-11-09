@@ -40,21 +40,15 @@ public class TaskService {
         );
     }
 
-    public List<TaskResponse> findByName(String taskName) {
-        List<Task> tasks = this.taskRepository.findByNameIgnoreCase(taskName);
-
+    public List<TaskResponse> searchTasks(String name) {
+        List<Task> tasks = this.taskRepository.searchTasks(name);
         return tasks.stream().map(this::toTaskResponse).toList();
     }
 
     public TaskResponse getTaskById(Long taskId) {
         Task task = this.taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
-
         return toTaskResponse(task);
-    }
-
-    public List<TaskResponse> listAllTasks() {
-        return this.taskRepository.findAll().stream().map(this::toTaskResponse).toList();
     }
 
     @Transactional
