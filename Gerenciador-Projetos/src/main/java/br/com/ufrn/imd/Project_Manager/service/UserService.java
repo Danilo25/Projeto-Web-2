@@ -34,38 +34,15 @@ public class UserService {
         );
     }
 
-    @Transactional
-    public Page<UserResponse> listAllUsers(Pageable pageable) {
-        return searchUsers(null, null, pageable);
+    public Page<UserResponse> getUsers(String name, String position, Pageable pageable) {
+        Page<User> usersPage = userRepository.searchUsers(name, position, pageable);
+        return usersPage.map(this::toUserResponse);
     }
 
-    @Transactional
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         return toUserResponse(user);
-    }
-
-    @Transactional
-    public Page<UserResponse> searchUsers(String name, String position, Pageable pageable) {
-        Specification<User> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (StringUtils.hasText(name)) {
-                predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("name")),
-                    "%" + name.toLowerCase() + "%"
-                ));
-            }
-            if (StringUtils.hasText(position)) {
-                predicates.add(criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("position")),
-                    "%" + position.toLowerCase() + "%"
-                ));
-            }
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-        Page<User> usersPage = userRepository.findAll(spec, pageable);
-        return usersPage.map(this::toUserResponse);
     }
 
     @Transactional
@@ -76,11 +53,13 @@ public class UserService {
         if (userRepository.existsByNameIgnoreCase(userRequest.name())) {
             throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso.");
         }
-        User newUser = new User();
-        newUser.setName(userRequest.name());
-        newUser.setEmail(userRequest.email());
-        newUser.setPassword(userRequest.password());
-        newUser.setPosition(userRequest.position());
+
+        User newUser = new User(
+                userRequest.name(),
+                userRequest.email(),
+                userRequest.password(),
+                userRequest.position()
+        );
 
         User savedUser = userRepository.save(newUser);
         return toUserResponse(savedUser);
@@ -91,25 +70,24 @@ public class UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        if (StringUtils.hasText(userRequest.email()) && !userRequest.email().equalsIgnoreCase(existingUser.getEmail())) {
-            Optional<User> userWithSameEmail = userRepository.findByEmailIgnoreCase(userRequest.email());
-            if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(userId)) {
+        if (userRequest.email() != null){
+            Optional<User> user = userRepository.findByEmailIgnoreCase(userRequest.email());
+            if (user.isPresent() && !user.get().getId().equals(userId)) {
                 throw new RuntimeException("Conflito: O e-mail '" + userRequest.email() + "' já está em uso por outro usuário.");
             }
             existingUser.setEmail(userRequest.email());
         }
-        if (StringUtils.hasText(userRequest.name()) && !userRequest.name().equalsIgnoreCase(existingUser.getName())) {
-            Optional<User> userWithSameName = userRepository.findByNameIgnoreCase(userRequest.name());
-            if (userWithSameName.isPresent() && !userWithSameName.get().getId().equals(userId)) {
+        if (userRequest.name() != null){
+            Optional<User> user = userRepository.findByNameIgnoreCase(userRequest.name());
+            if (user.isPresent() && !user.get().getId().equals(userId)) {
                  throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso por outro usuário.");
             }
             existingUser.setName(userRequest.name());
         }
-        
-        if (StringUtils.hasText(userRequest.password())) {
+        if (userRequest.password() != null) {
             existingUser.setPassword(userRequest.password());
         }
-        if (StringUtils.hasText(userRequest.position())) {
+        if (userRequest.position() != null) {
             existingUser.setPosition(userRequest.position());
         }
 

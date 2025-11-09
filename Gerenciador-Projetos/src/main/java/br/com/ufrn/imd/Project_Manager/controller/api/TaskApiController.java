@@ -4,6 +4,9 @@ import br.com.ufrn.imd.Project_Manager.dtos.api.TaskRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.TaskResponse;
 import br.com.ufrn.imd.Project_Manager.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,18 +30,19 @@ public class TaskApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de tarefas retornada com sucesso")
     })
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        List<TaskResponse> tasks = taskService.listAllTasks();
+    public ResponseEntity<List<TaskResponse>> getTasks(@Parameter(description = "Nome da tarefa para busca (opcional)") @RequestParam(required = false) String name) {
+        List<TaskResponse> tasks = taskService.searchTasks(name);
         return ResponseEntity.ok().body(tasks);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Obter tarefa por ID", description = "Retorna os detalhes de uma tarefa específica pelo seu ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tarefa retornada com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Tarefa retornada com sucesso",
+                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
             @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
+    public ResponseEntity<?> getTaskById(@PathVariable Long id) {
         try {
             TaskResponse task = taskService.getTaskById(id);
             return ResponseEntity.ok().body(task);
@@ -47,20 +51,11 @@ public class TaskApiController {
         }
     }
 
-    @GetMapping("/search/{name}")
-    @Operation(summary = "Buscar tarefas por nome", description = "Retorna uma lista de tarefas que correspondem ao nome fornecido")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de tarefas retornada com sucesso")
-    })
-    public ResponseEntity<List<TaskResponse>> getTasksByName(@PathVariable String name) {
-        List<TaskResponse> tasks = taskService.findByName(name);
-        return ResponseEntity.ok().body(tasks);
-    }
-
     @PostMapping
     @Operation(summary = "Criar nova tarefa", description = "Cria uma nova tarefa com os dados fornecidos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tarefa criada com sucesso"),
+            @ApiResponse(responseCode = "201", description = "Tarefa criada com sucesso",
+                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos para criação da tarefa")
     })
     public ResponseEntity<?> createTask(@RequestBody TaskRequest task) {
@@ -75,11 +70,13 @@ public class TaskApiController {
     @PatchMapping("/{id}")
     @Operation(summary = "Atualizar tarefa", description = "Atualiza os dados de uma tarefa existente pelo seu ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tarefa atualizada com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Tarefa atualizada com sucesso",
+                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos para atualização da tarefa"),
             @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
-    public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody TaskRequest task) {
+    public ResponseEntity<?> updateTask(@Parameter(description = "ID da tarefa a ser atualizada", required = true) @PathVariable Long id,
+                                        @RequestBody TaskRequest task) {
         try {
             TaskResponse updatedTask = taskService.updateTask(id, task);
             return ResponseEntity.ok().body(updatedTask);
@@ -97,7 +94,7 @@ public class TaskApiController {
             @ApiResponse(responseCode = "204", description = "Tarefa excluída com sucesso"),
             @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@Parameter (description = "ID da tarefa a ser excluída", required = true) @PathVariable Long id) {
         try {
             taskService.deleteTask(id);
             return ResponseEntity.noContent().build();

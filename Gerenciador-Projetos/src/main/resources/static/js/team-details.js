@@ -46,7 +46,7 @@ async function fetchTeamDetails(teamId) {
 }
 
 async function fetchTeamProjects(teamId) {
-    const response = await fetch(`/projects/team/${teamId}`); 
+    const response = await fetch(`/api/projects?teamId=${teamId}`); 
     if (!response.ok) {
         throw new Error('Erro ao buscar projetos da equipe.');
     }

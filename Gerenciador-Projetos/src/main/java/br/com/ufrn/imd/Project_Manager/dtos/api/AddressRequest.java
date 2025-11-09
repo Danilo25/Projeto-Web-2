@@ -5,5 +5,6 @@ public record AddressRequest(
         String district,   
         String city,    
         String state,      
-        String zipCode    
+        String zipCode,
+        Long userId
 ) {}

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -27,71 +26,75 @@ public class CommentService {
     @Autowired
     private UserRepository userRepository;
 
-    public void saveComment(Comment comment){
-        this.commentRepository.save(comment);
+    public CommentResponse toCommentResponse(Comment comment) {
+        return new CommentResponse(
+                comment.getId(),
+                comment.getText(),
+                comment.getCreatedAt(),
+                comment.getUser() != null ? comment.getUser().getId() : null
+        );
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentResponse> listAllComments(){
-        return this.commentRepository.findAll().stream().map(comment -> new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), comment.getUser().getId())).toList();
+    public List<CommentResponse> searchComments(Long taskId, String text) {
+        List<Comment> comments = this.commentRepository.searchComments(taskId, text);
+        return comments.stream().map(this::toCommentResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentResponse> findByName(String commentText) {
-        List<Comment> comments = this.commentRepository.findByTextContainingIgnoreCase(commentText);
+    public CommentResponse getCommentById(Long commentId) {
+        Comment comment = this.commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found!"));
 
-        return comments.stream().map(comment -> new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), comment.getUser().getId())).toList();
-    }
-
-    @Transactional
-    public CommentResponse CreateComment(CommentRequest commentRequest){
-        Optional<Task> task = this.taskRepository.findById(commentRequest.taskId());
-        Optional<User> user = this.userRepository.findById(commentRequest.userId());
-
-        if(task.isPresent() && user.isPresent()){
-            Comment newComment = new Comment(commentRequest);
-            newComment.setUser(user.get());
-            newComment.setTask(task.get());
-            this.saveComment(newComment);
-            return new CommentResponse(newComment.getId(), newComment.getText(), newComment.getCreatedAt(), newComment.getUser().getId());
-        }
-        else{
-            throw new RuntimeException("User or Task Not Found!");
-        }
+        return toCommentResponse(comment);
     }
 
     @Transactional
-    public CommentResponse UpdateComment(Long id, CommentRequest commentRequest){
-        Comment foundComment = this.commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found!"));
+    public CommentResponse createComment(CommentRequest commentRequest){
+        Task task = this.taskRepository.findById(commentRequest.taskId())
+                .orElseThrow(() -> new RuntimeException("Task not found!"));
+        User user = this.userRepository.findById(commentRequest.userId())
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        foundComment.setText(commentRequest.text());
-        foundComment.setCreatedAt(commentRequest.createdAt());
-        this.saveComment(foundComment);
+        Comment newComment = new Comment(
+                commentRequest.text(),
+                commentRequest.createdAt(),
+                task,
+                user
+        );
 
-        return new CommentResponse(foundComment.getId(), foundComment.getText(), foundComment.getCreatedAt(),  foundComment.getUser().getId());
+        Comment savedComment = this.commentRepository.save(newComment);
+        return toCommentResponse(savedComment);
     }
 
     @Transactional
-    public void DeleteComment(Long id){
-        Comment foundComment = this.commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found!"));
-        this.commentRepository.delete(foundComment);
+    public CommentResponse updateComment(Long id, CommentRequest commentRequest){
+        Comment existingComment = this.commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found!"));
+
+        if (commentRequest.text() != null) {
+            existingComment.setText(commentRequest.text());
+        }
+        if (commentRequest.createdAt() != null) {
+            existingComment.setCreatedAt(commentRequest.createdAt());
+        }
+        if (commentRequest.userId() != null) {
+            User user = this.userRepository.findById(commentRequest.userId())
+                    .orElseThrow(() -> new RuntimeException("User not found!"));
+            existingComment.setUser(user);
+        }
+        if (commentRequest.taskId() != null) {
+            Task task = this.taskRepository.findById(commentRequest.taskId())
+                    .orElseThrow(() -> new RuntimeException("Task not found!"));
+            existingComment.setTask(task);
+        }
+
+        Comment updatedComment = this.commentRepository.save(existingComment);
+        return toCommentResponse(updatedComment);
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentResponse> findCommentByTask(Long taskId) {
-        Optional<Task> task = this.taskRepository.findById(taskId);
-
-        if(task.isPresent()){
-            if(task.get().getComments().isEmpty()){
-                return List.of();
-            }
-            else{
-                return task.get().getComments().stream().map(comment -> new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), comment.getUser().getId())).toList();
-            }
-        }
-        else{
-            throw new RuntimeException("Task not found!");
-        }
+    @Transactional
+    public void deleteComment(Long id){
+        Comment existingComment = this.commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found!"));
+        this.commentRepository.delete(existingComment);
     }
-
 }

@@ -13,10 +13,6 @@ import org.springframework.util.StringUtils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class AddressService {
@@ -39,42 +35,27 @@ public class AddressService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public Page<AddressResponse> searchAddresses(String city, String state, String zipCode, String district, String publicPlace, Pageable pageable) {
-        Specification<Address> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+    public Page<AddressResponse> searchAddresses(String city, String state, String zipCode, String district, String publicPlace, Long userId, Pageable pageable) {
+        Page<Address> addresses = addressRepository.searchAddresses(city, state, zipCode, district, publicPlace, userId, pageable);
+        return addresses.map(this::toAddressResponse);
+    }
 
-            if (StringUtils.hasText(publicPlace)) {
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("publicPlace")), "%" + publicPlace.toLowerCase() + "%"));
-            }
-            if (StringUtils.hasText(district)) {
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("district")), "%" + district.toLowerCase() + "%"));
-            }
-            if (StringUtils.hasText(city)) {
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("city")), "%" + city.toLowerCase() + "%"));
-            }
-            if (StringUtils.hasText(state)) {
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("state")), "%" + state.toLowerCase() + "%"));
-            }
-             if (StringUtils.hasText(zipCode)) {
-                 predicates.add(criteriaBuilder.like(root.get("zipCode"), zipCode + "%"));
-            }
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-        
-        return addressRepository.findAll(spec, pageable).map(this::toAddressResponse);
+    public AddressResponse getAddressById(Long id) {
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado!"));
+        return toAddressResponse(address);
     }
 
     @Transactional
-    public AddressResponse createAddressForUser(AddressRequest addressRequest, Long currentUserId) {
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Usuário autenticado com ID '" + currentUserId + "' não encontrado no banco de dados."));
+    public AddressResponse createAddress(AddressRequest addressRequest) {
+        User user = userRepository.findById(addressRequest.userId())
+                .orElseThrow(() -> new RuntimeException("Usuário com ID '" + addressRequest.userId() + "' não encontrado."));
 
-        if (addressRepository.findByUserId(currentUserId).isPresent()) {
-            throw new RuntimeException("Conflito: Você (usuário ID: " + currentUserId + ") já possui um endereço cadastrado.");
+        if (addressRepository.findByUserId(addressRequest.userId()).isPresent()) {
+            throw new RuntimeException("Conflito: O usuário com ID '" + addressRequest.userId() + "' já possui um endereço cadastrado.");
         }
 
-        boolean addressAlreadyExists = addressRepository.existsAdress(
+        boolean addressAlreadyExists = addressRepository.existsAddress(
                 addressRequest.publicPlace(),
                 addressRequest.city(),
                 addressRequest.state(),
@@ -83,22 +64,23 @@ public class AddressService {
         if (addressAlreadyExists) {
              throw new RuntimeException("Conflito: Um endereço com os mesmos dados (logradouro, cidade, estado, CEP) já existe.");
         }
-        Address newAddress = new Address();
-        newAddress.setPublicPlace(addressRequest.publicPlace());
-        newAddress.setDistrict(addressRequest.district());
-        newAddress.setCity(addressRequest.city());
-        newAddress.setState(addressRequest.state());
-        newAddress.setZipCode(addressRequest.zipCode());
-        newAddress.setUser(user);
+        Address newAddress = new Address(
+                addressRequest.publicPlace(),
+                addressRequest.district(),
+                addressRequest.city(),
+                addressRequest.state(),
+                addressRequest.zipCode(),
+                user
+        );
 
         Address savedAddress = addressRepository.save(newAddress);
         return toAddressResponse(savedAddress);
     }
 
     @Transactional
-    public AddressResponse updateMyAddress(Long currentUserId, AddressRequest addressRequest) {
-        Address existingAddress = addressRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Nenhum endereço encontrado para você (usuário ID: " + currentUserId + "). Crie um endereço primeiro."));
+    public AddressResponse updateAddress(Long id, AddressRequest addressRequest) {
+        Address existingAddress = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Endereço com ID '" + id + "' não encontrado."));
 
         if (StringUtils.hasText(addressRequest.publicPlace())) {
             existingAddress.setPublicPlace(addressRequest.publicPlace());
@@ -115,22 +97,21 @@ public class AddressService {
         if (StringUtils.hasText(addressRequest.zipCode())) {
             existingAddress.setZipCode(addressRequest.zipCode());
         }
+        if (addressRequest.userId() != null && !addressRequest.userId().equals(existingAddress.getUser().getId())) {
+            User newUser = userRepository.findById(addressRequest.userId())
+                    .orElseThrow(() -> new RuntimeException("Usuário com ID '" + addressRequest.userId() + "' não encontrado."));
+            existingAddress.setUser(newUser);
+        }
+
         Address updatedAddress = addressRepository.save(existingAddress);
         return toAddressResponse(updatedAddress);
     }
 
-    @Transactional(readOnly = true)
-    public AddressResponse getMyAddress(Long currentUserId) {
-         Address address = addressRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Nenhum endereço cadastrado para você (usuário ID: " + currentUserId + ").")); 
-        return toAddressResponse(address);
-    }
-    
     @Transactional
-    public void deleteMyAddress(Long currentUserId) {
-         Address address = addressRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Não encontrado: Nenhum endereço cadastrado para você (usuário ID: " + currentUserId + ")."));
-        addressRepository.delete(address);
+    public void deleteAddress(Long id) {
+         Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Endereço com ID '" + id + "' não encontrado."));
+         addressRepository.delete(address);
     }
 
 

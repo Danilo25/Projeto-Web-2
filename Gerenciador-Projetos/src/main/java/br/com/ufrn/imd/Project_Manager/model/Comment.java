@@ -1,6 +1,5 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
-import br.com.ufrn.imd.Project_Manager.dtos.api.CommentRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,8 +28,10 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Comment(CommentRequest commentRequest){
-        this.text = commentRequest.text();
-        this.createdAt = commentRequest.createdAt();
+    public Comment(String text, LocalDateTime createdAt, Task task, User user) {
+        this.text = text;
+        this.createdAt = createdAt;
+        this.task = task;
+        this.user = user;
     }
 }

@@ -27,25 +27,7 @@ public class ProjectService {
     @Autowired
     private FrameRepository frameRepository;
 
-    public List<ProjectResponse> findByName(String projectName) {
-        List<Project> projects = this.projectRepository.findByNameIgnoreCase(projectName);
-
-        return projects.stream().map(e -> new ProjectResponse(
-                e.getId(),
-                e.getName(),
-                e.getDescription(),
-                e.getInitialDate(),
-                e.getFinalDate(),
-                e.getStatus(),
-                e.getTeam().getId(),
-                e.getFrames().stream().map(Frame::getId).toList()
-        )).toList();
-    }
-
-    public ProjectResponse getProjectById(Long projectId) {
-        Project project = this.projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found!"));
-
+    private ProjectResponse toProjectResponse(Project project) {
         return new ProjectResponse(
                 project.getId(),
                 project.getName(),
@@ -58,29 +40,15 @@ public class ProjectService {
         );
     }
 
-    public List<ProjectResponse> listAllProjects() {
-        return this.projectRepository.findAll().stream().map(e -> new ProjectResponse(
-                e.getId(),
-                e.getName(),
-                e.getDescription(),
-                e.getInitialDate(),
-                e.getFinalDate(),
-                e.getStatus(),
-                e.getTeam().getId(),
-                e.getFrames().stream().map(Frame::getId).toList()
-        )).toList();
+    public List<ProjectResponse> searchProjects(String name, Long teamId) {
+        List<Project> projects = this.projectRepository.searchProjects(name, teamId);
+        return projects.stream().map(this::toProjectResponse).toList();
     }
 
-    public List<DashboardPageProjectResponse> getProjectsByTeamIdForDashboardPage(Long teamId) {
-        List<Project> projects = this.projectRepository.findByTeamId(teamId);
-
-        return projects.stream().map(e -> new DashboardPageProjectResponse(
-                e.getId(),
-                e.getName(),
-                e.getTeam().getName(),
-                e.getFinalDate(),
-                e.getStatus()
-        )).toList();
+    public ProjectResponse getProjectById(Long projectId) {
+        Project project = this.projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found!"));
+        return toProjectResponse(project);
     }
 
     @Transactional
@@ -99,16 +67,7 @@ public class ProjectService {
 
         Project savedProject = this.projectRepository.save(newProject);
 
-        return new ProjectResponse(
-                savedProject.getId(),
-                savedProject.getName(),
-                savedProject.getDescription(),
-                savedProject.getInitialDate(),
-                savedProject.getFinalDate(),
-                savedProject.getStatus(),
-                savedProject.getTeam().getId(),
-                savedProject.getFrames().stream().map(Frame::getId).toList()
-        );
+        return this.toProjectResponse(savedProject);
     }
 
     @Transactional
@@ -140,16 +99,7 @@ public class ProjectService {
 
         Project updatedProject = this.projectRepository.save(oldProject);
 
-        return new ProjectResponse(
-                updatedProject.getId(),
-                updatedProject.getName(),
-                updatedProject.getDescription(),
-                updatedProject.getInitialDate(),
-                updatedProject.getFinalDate(),
-                updatedProject.getStatus(),
-                updatedProject.getTeam().getId(),
-                updatedProject.getFrames().stream().map(Frame::getId).toList()
-        );
+        return this.toProjectResponse(updatedProject);
     }
 
     @Transactional
@@ -172,16 +122,7 @@ public class ProjectService {
             this.frameRepository.save(frame);
 
             Project updatedProject = this.projectRepository.findById(projectId).get();
-            return new ProjectResponse(
-                    updatedProject.getId(),
-                    updatedProject.getName(),
-                    updatedProject.getDescription(),
-                    updatedProject.getInitialDate(),
-                    updatedProject.getFinalDate(),
-                    updatedProject.getStatus(),
-                    updatedProject.getTeam().getId(),
-                    updatedProject.getFrames().stream().map(Frame::getId).toList()
-            );
+            return this.toProjectResponse(updatedProject);
         } else {
             throw new RuntimeException("Frame is already associated with a project!");
         }
@@ -200,19 +141,9 @@ public class ProjectService {
             this.frameRepository.save(frame);
 
             Project updatedProject = this.projectRepository.findById(projectId).get();
-            return new ProjectResponse(
-                    updatedProject.getId(),
-                    updatedProject.getName(),
-                    updatedProject.getDescription(),
-                    updatedProject.getInitialDate(),
-                    updatedProject.getFinalDate(),
-                    updatedProject.getStatus(),
-                    updatedProject.getTeam().getId(),
-                    updatedProject.getFrames().stream().map(Frame::getId).toList()
-            );
+            return this.toProjectResponse(updatedProject);
         } else {
             throw new RuntimeException("Frame is not associated with the specified project!");
         }
     }
-
 }

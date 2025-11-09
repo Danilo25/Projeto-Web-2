@@ -31,4 +31,11 @@ public class User {
     public User() {
     }
 
+    public User(String name, String email, String password, String position) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.position = position;
+    }
+
 }
