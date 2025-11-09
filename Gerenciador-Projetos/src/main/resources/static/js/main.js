@@ -11,7 +11,7 @@ import { initializeMemberSearch, addMemberToList, createMemberLi } from './ui/te
 document.addEventListener('DOMContentLoaded', async () => {
     const userId = document.getElementById('user-context')?.dataset.userid;
 
-    if (!userId || isNaN(userId)) {
+    if (!userId) {
         showUserError('Erro: ID de usuário inválido.');
         return;
     }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const teamIds = new Set(teams.map(t => t.id));
         const userProjects = allProjects.filter(p => teamIds.has(p.teamId));
 
-        renderProjects(userProjects, teams);
+        renderProjects(userProjects, teams, userId);
 
         fillSelectTimes(teams);
         

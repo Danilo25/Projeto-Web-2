@@ -1,0 +1,94 @@
+<div th:fragment="taskDetailsModal">
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="taskDetailsModalLabel">Detalhes da Tarefa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="taskDetailsForm">
+                        <input type="hidden" id="task-id" name="id">
+
+                        <div class="row">
+                            <div class="col-md-6 border-end">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Título</label>
+                                    <input type="text" class="form-control" id="task-name" name="name" placeholder="Título da tarefa">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Descrição</label>
+                                    <textarea class="form-control" id="task-description" name="description" rows="4" placeholder="Descrição detalhada da tarefa"></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">Data Inicial</label>
+                                        <input type="date" class="form-control" id="task-initialDate" name="initialDate">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">Data Final</label>
+                                        <input type="date" class="form-control" id="task-finalDate" name="finalDate">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Status</label>
+                                    <select class="form-select" id="task-status" name="status">
+                                        <option value="A Fazer">A Fazer</option>
+                                        <option value="Em Progresso">Em Progresso</option>
+                                        <option value="Concluída">Concluída</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3 position-relative">
+                                    <label class="form-label fw-semibold">Responsável</label>
+                                    <input type="text" class="form-control" id="task-assignee-search" placeholder="Buscar usuário...">
+                                    <input type="hidden" id="task-assignee-id" name="assigneeId">
+                                    <ul id="task-assignee-results" class="list-group position-absolute w-100 shadow-sm"
+                                        style="z-index: 1050; max-height: 200px; overflow-y: auto;"></ul>
+                                </div>
+
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                                    <button type="submit" class="btn btn-primary ms-2">Salvar Alterações</button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 ps-4">
+                                <div class="mb-4">
+                                    <h6 class="fw-semibold mb-2">Tags</h6>
+
+                                    <div class="input-group input-group-sm mb-2" style="max-width: 350px;">
+                                        <input type="text" id="task-tag-input" class="form-control" placeholder="Nome da tag">
+                                        <button type="button" class="btn btn-outline-secondary" id="task-create-tag-btn">Criar Etiqueta</button>
+                                        <button type="button" class="btn btn-primary" id="task-add-tag-btn">Adicionar Etiqueta</button>
+                                    </div>
+
+                                    <div id="task-tag-list" class="d-flex flex-wrap gap-2"></div>
+                                </div>
+
+                                <hr>
+
+                                <div>
+                                    <h6 class="fw-semibold mb-3">Comentários</h6>
+
+                                    <div id="task-comments" class="mb-3" style="max-height: 250px; overflow-y: auto;"></div>
+
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="new-comment-input" placeholder="Escreva um comentário...">
+                                        <button class="btn btn-success" type="button" id="btn-add-comment">Enviar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
