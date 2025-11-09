@@ -22,16 +22,26 @@ public class TagService {
     @Autowired
     private TaskRepository taskRepository;
 
+    public TagResponse toTagResponse(Tag tag) {
+        return new TagResponse(tag.getId(), tag.getName());
+    }
+
+    public List<TagResponse> getTags(String name){
+        List<Tag> tags = this.tagRepository.searchTags(name);
+        return tags.stream().map(this::toTagResponse).toList();
+    }
+
+    public TagResponse getTagById(Long id) {
+        Tag tag = this.tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tag not found!"));
+        return toTagResponse(tag);
+    }
+
     @Transactional(readOnly = true)
     public List<TagResponse> findByName(String tagName) {
        List<Tag> tags = this.tagRepository.findByNameIgnoreCase(tagName);
 
        return tags.stream().map(e -> new TagResponse(e.getId(), e.getName())).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<TagResponse> listAllTags(){
-        return this.tagRepository.findAll().stream().map(e -> new TagResponse(e.getId(), e.getName())).toList();
     }
 
     public void saveTag(Tag tag) {
@@ -69,49 +79,38 @@ public class TagService {
 
     @Transactional
     public void addTagToTask(Long tagId, Long taskId) {
-        Optional<Task> task = this.taskRepository.findById(taskId);
-        Optional<Tag> tag = this.tagRepository.findById(tagId);
+        Task task = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found!"));
+        Tag tag = this.tagRepository.findById(tagId)
+                .orElseThrow(() -> new RuntimeException("Tag not found!"));
 
-        if(task.isPresent() && tag.isPresent()){
-            if(task.get().getTags().contains(tag.get())){
-                throw  new RuntimeException("Already exists!");
-            }
-
-            task.get().getTags().add(tag.get());
-            this.taskRepository.save(task.get());
+        if (task.getTags().contains(tag)){
+            throw  new RuntimeException("Tag already associated!");
         }
+        this.taskRepository.save(task);
     }
 
     @Transactional
     public void removeTagFromTask(Long tagId, Long taskId) {
-        Optional<Task> task = this.taskRepository.findById(taskId);
-        Optional<Tag> tag = this.tagRepository.findById(tagId);
+        Task task = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found!"));
+        Tag tag = this.tagRepository.findById(tagId)
+                .orElseThrow(() -> new RuntimeException("Tag not found!"));
 
-        if(task.isPresent() && tag.isPresent()){
-            if(task.get().getTags().contains(tag.get())){
-                task.get().getTags().remove(tag.get());
-                this.taskRepository.save(task.get());
-            }
-            else{
-                throw  new RuntimeException("Unassociated tag!");
-            }
+        if(task.getTags().contains(tag)){
+            task.getTags().remove(tag);
+            this.taskRepository.save(task);
+        }
+        else{
+            throw  new RuntimeException("Tag not associated!");
         }
     }
 
     @Transactional(readOnly = true)
     public List<TagResponse> findTagsByTask(Long taskId) {
-        Optional<Task> task = this.taskRepository.findById(taskId);
+        Task task = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found!"));
 
-        if(task.isPresent()){
-            if(task.get().getTags().isEmpty()){
-                return List.of();
-            }
-            else{
-                return task.get().getTags().stream().map(tag -> new TagResponse(tag.getId(), tag.getName())).toList();
-            }
-        }
-        else{
-            throw  new RuntimeException("Task not found!");
-        }
+        return task.getTags().stream().map(this::toTagResponse).toList();
     }
 }
