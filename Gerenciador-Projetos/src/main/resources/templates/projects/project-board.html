@@ -11,14 +11,13 @@
 <body class="bg-light">
 
 <div class="container py-4">
-    <!-- 🔹 Cabeçalho -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1" th:text="'Projeto: ' + ${project.name}">Projeto</h2>
             <p class="text-muted mb-0" th:text="${project.description}">Descrição do projeto...</p>
         </div>
         <div>
-            <a href="/web/home" class="btn btn-outline-secondary me-2">← Voltar</a>
+            <a th:href="@{/web/home/{id}(id=${userId})}" class="btn btn-outline-secondary me-2">← Voltar</a>
             <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createFrameModal">
                 + Criar Quadro
             </button>
@@ -28,45 +27,58 @@
         </div>
     </div>
 
-    <div class="row g-3">
-        <div th:each="frame : ${frames}" class="col-md-3">
-            <div class="kanban-column bg-white p-3 rounded shadow-sm">
-                <div class="kanban-header fw-bold border-bottom pb-2 mb-2" th:text="${frame.name}">Frame</div>
+    <div class="kanban-board d-flex flex-nowrap overflow-auto pb-3">
+        <div th:each="frame : ${frames}"
+             class="kanban-column me-3 flex-shrink-0"
+             th:attr="data-frame-id=${frame.id}"
+             ondragover="allowDrop(event)"
+             ondrop="dropTask(event, this)">
+        <div class="kanban-content p-3">
+                <div class="kanban-header" th:text="${frame.name}">Frame</div>
 
-                <div th:each="task : ${frame.tasks}" class="kanban-card p-3 mb-3 border rounded bg-light shadow-sm">
-                    <h6 class="mb-1 fw-semibold" th:text="${task.name}">Nome da Tarefa</h6>
+            <div th:each="task : ${frame.tasks}"
+                 class="kanban-card p-3 mb-3"
+                 draggable="true"
+                 th:attr="data-task-id=${task.id}"
+                 ondragstart="dragTask(event)">
 
-                    <p class="text-muted small mb-2"
-                       th:text="${task.description != null ? task.description : 'Sem descrição'}">
-                        Descrição da tarefa
-                    </p>
+                <h6 class="mb-1 fw-semibold text-wrap" th:text="${task.name}">Nome da Tarefa</h6>
 
-                    <p class="small text-muted mb-1">
-                        <span th:if="${task.finalDate != null}">
-                            <i class="bi bi-calendar-event me-1"></i>
-                            Entrega: <span th:text="${#temporals.format(task.finalDate, 'dd/MM/yyyy')}"></span>
-                        </span>
-                        <span th:if="${task.finalDate == null}">
-                            <i class="bi bi-calendar-x me-1"></i>
-                            Sem data definida
-                        </span>
-                    </p>
+                <p class="small mb-2 text-wrap"
+                   th:text="${task.description != null ? task.description : 'Sem descrição'}">
+                    Descrição da tarefa
+                </p>
 
-                    <p class="small mb-0">
-                        <i class="bi bi-person me-1"></i>
-                        Responsável:
-                        <span th:text="${task.assigneeName() != null ? task.assigneeName() : 'Não atribuído'}"></span>
-                    </p>
-                </div>
+                <p class="small mb-1 text-wrap">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    Início:
+                    <span th:if="${task.initialDate != null}"
+                          th:text="${#temporals.format(task.initialDate, 'dd/MM/yyyy')}"></span>
+                    <span th:if="${task.initialDate == null}">Não definida</span>
+                </p>
 
+                <p class="small mb-1 text-wrap">
+                    <i class="bi bi-calendar-event me-1"></i>
+                    Entrega:
+                    <span th:if="${task.finalDate != null}"
+                          th:text="${#temporals.format(task.finalDate, 'dd/MM/yyyy')}"></span>
+                    <span th:if="${task.finalDate == null}">Não definida</span>
+                </p>
 
-                <div th:if="${#lists.isEmpty(frame.tasks)}" class="text-center text-muted small">
-                    Nenhuma tarefa.
-                </div>
+                <p class="small mb-1 text-wrap">
+                    <i class="bi bi-flag me-1"></i>
+                    Status:
+                    <span th:text="${task.status != null ? task.status : 'Não definido'}"></span>
+                </p>
+
+                <p class="small mb-0 text-wrap">
+                    <i class="bi bi-person me-1"></i>
+                    Responsável:
+                    <span th:text="${task.assigneeName() != null ? task.assigneeName() : 'Não atribuído'}"></span>
+                </p>
             </div>
-        </div>
 
-        <div th:if="${#lists.isEmpty(frames)}" class="text-center text-muted mt-4">
+            <div th:if="${#lists.isEmpty(frames)}" class="text-center text-muted mt-4">
             Nenhum quadro criado ainda. Clique em <b>“Criar Quadro”</b> para começar.
         </div>
     </div>
@@ -76,6 +88,7 @@
 <div th:replace="~{fragments/create-task-modal :: createTaskModal}"></div>
 <script src="/js/ui/frameModal.js"></script>
 <script src="/js/ui/taskModal.js"></script>
+<script src="/js/ui/kanbanDrag.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

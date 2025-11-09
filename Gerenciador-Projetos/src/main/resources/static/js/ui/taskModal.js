@@ -16,11 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    title: data.title,
+                    name: data.name,
                     description: data.description,
                     frameId: data.frameId,
-                    assignedToId: data.assignedToId || null,
-                    dueDate: data.dueDate || null
+                    finalDate: data.finalDate,
+                    initialDate: new Date(),
+                    assigneeId: data.assigneeId
                 })
             });
 

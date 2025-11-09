@@ -1,4 +1,4 @@
-export function renderProjects(projects, teams) {
+export function renderProjects(projects, teams, userId) {
     const tbody = document.querySelector('#projectsTable tbody');
     const teamMap = new Map(teams.map(t => [t.id, t.name]));
 
@@ -20,7 +20,7 @@ export function renderProjects(projects, teams) {
             <td>${project.finalDate ? new Date(project.finalDate).toLocaleDateString('pt-BR') : '-'}</td>
             <td>${teamMap.get(project.teamId) || '—'}</td>
             <td>
-                <a href="/web/project/${project.id}/board" class="btn btn-sm btn-outline-primary">
+                <a href="/web/project/${userId}/${project.id}/board" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-kanban"></i> Ver Quadro
                 </a>
             </td>

@@ -2,6 +2,7 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.api.FrameRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.FrameResponse;
+import br.com.ufrn.imd.Project_Manager.dtos.api.TaskResponse;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;

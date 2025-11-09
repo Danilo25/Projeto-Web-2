@@ -57,8 +57,8 @@ public class PagesController {
         return "users/profile"; 
     }
 
-    @GetMapping("web/project/{projectId}/board")
-    public String showProjectBoard(@PathVariable Long projectId, Model model) {
+    @GetMapping("web/project/{userId}/{projectId}/board")
+    public String showProjectBoard(@PathVariable Long projectId, Model model, @PathVariable String userId) {
         ProjectResponse project = projectService.getProjectById(projectId);
 
         if (project == null) {
@@ -68,6 +68,7 @@ public class PagesController {
 
         List<FrameResponse> frames = frameService.findByProjectOrderByOrderIndex(projectId);
 
+        model.addAttribute("userId", userId);
         model.addAttribute("project", project);
         model.addAttribute("frames", frames);
 
