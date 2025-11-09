@@ -1,11 +1,9 @@
-import {fetchUserDetails} from "../api/userApi";
-
 document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("taskDetailsModal");
     const form = document.getElementById("taskDetailsForm");
 
     if (!modal || !form) return;
-    window.openTaskDetails = async (taskId) => {
+    window.openTaskDetails = async (taskId, userId) => {
         try {
             const response = await fetch(`/api/tasks/${taskId}`);
             if (!response.ok) return alert("Erro ao carregar detalhes da tarefa");
@@ -20,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
             form.querySelector("#task-status").value = task.status || "PENDENTE";
 
             initializeTaskTagManagement(taskId);
-            initializeTaskCommentManagement(taskId);
+            initializeTaskCommentManagement(taskId, userId);
 
             const modalInstance = new bootstrap.Modal(modal);
             modalInstance.show();
@@ -64,6 +62,7 @@ window.initializeTaskTagManagement = function (taskId) {
         try {
             const response = await fetch(`/api/tags/task/${taskId}`);
             if (!response.ok) {
+                console.log("aaaaaaaaaaaaaaa");
                 tagListContainer.innerHTML = `<span class="text-muted small">Nenhuma tag associada</span>`;
                 return;
             }
@@ -91,7 +90,7 @@ window.initializeTaskTagManagement = function (taskId) {
         if (!tagName) return alert("Informe um nome para a tag.");
 
         try {
-            const response = await fetch(`/api/tags/create`, {
+            const response = await fetch(`/api/tags`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: tagName })
@@ -103,8 +102,11 @@ window.initializeTaskTagManagement = function (taskId) {
                 return;
             }
 
-            const createdTag = await response.json();
-            alert(`Tag "${createdTag.name}" criada com sucesso!`);
+            const tagText = await response.text();
+            const match = tagText.match(/name=([^\]]+)/);
+            const name = match ? match[1].trim() : "desconhecida";
+
+            alert(`Tag "${name}" criada com sucesso!`);
         } catch (error) {
             console.error("Erro ao criar tag:", error);
             alert("Erro inesperado ao criar tag.");
@@ -112,14 +114,14 @@ window.initializeTaskTagManagement = function (taskId) {
     };
 
     addTagBtn.onclick = async () => {
+        console.log("Botão encontrado:", addTagBtn);
         const tagName = tagInput.value.trim();
         if (!tagName) return alert("Informe o nome da tag a adicionar.");
 
         try {
-            const response = await fetch(`/api/tags/add/${taskId}`, {
+            const response = await fetch(`/api/tags/add-to-task?tagId=${1}&taskId=${taskId}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: tagName }) // ✅ Compatível com TagRequest
+                headers: { "Content-Type": "application/json" }
             });
 
             if (!response.ok) {
@@ -143,7 +145,7 @@ window.initializeTaskTagManagement = function (taskId) {
         if (!confirm("Tem certeza que deseja remover esta tag?")) return;
 
         try {
-            const response = await fetch(`/api/tags/remove/${taskId}/${tagId}`, { method: "DELETE" });
+            const response = await fetch(`/api/tags//remove-from-task?tagId=${1}&taskId=${taskId}`, { method: "DELETE" });
 
             if (response.ok) {
                 await loadTags();
@@ -160,7 +162,7 @@ window.initializeTaskTagManagement = function (taskId) {
 };
 
 
-window.initializeTaskCommentManagement = function (taskId) {
+window.initializeTaskCommentManagement = function (taskId, userId) {
     const commentListContainer = document.getElementById("task-comments");
     const commentInput = document.getElementById("new-comment-input");
     const addCommentBtn = document.getElementById("btn-add-comment");
@@ -172,40 +174,59 @@ window.initializeTaskCommentManagement = function (taskId) {
 
     async function loadComments() {
         try {
-            const response = await fetch(`/api/comments/task/${taskId}`);
+            const response = await fetch(`/api/comments?taskId=${taskId}`);
             if (!response.ok || response.status === 204) {
                 commentListContainer.innerHTML = `<p class="text-muted small">Sem comentários ainda.</p>`;
                 return;
             }
 
             const comments = await response.json();
-            const user = await fetchUserDetails(comments.userId);
 
-            commentListContainer.innerHTML = comments.map(c => `
-                <div class="border rounded p-2 mb-2 position-relative">
-                    <button type="button"
-                            class="btn-close position-absolute top-0 end-0 small delete-comment-btn"
-                            data-comment-id="${c.commentId}"
-                            aria-label="Excluir"></button>
-                    <small class="fw-semibold">${user.name}</small><br>
-                    <span>${c.text}</span><br>
-                    <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
-                </div>
-            `).join("");
+            const commentsHTML = await Promise.all(
+                comments.map(async (c) => {
+                    try {
+                        const userResponse = await fetch(`/api/users/${c.userId}`);
+                        const user = userResponse.ok ? await userResponse.json() : { name: "Usuário desconhecido" };
+
+                        return `
+                        <div class="border rounded p-2 mb-2 position-relative">
+                            <button type="button"
+                                    class="btn-close position-absolute top-0 end-0 small delete-comment-btn"
+                                    data-comment-id="${c.commentId}"
+                                    aria-label="Excluir"></button>
+                            <small class="fw-semibold">${user.name}</small><br>
+                            <span>${c.text}</span><br>
+                            <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
+                        </div>
+                    `;
+                    } catch (err) {
+                        console.error("Erro ao buscar usuário:", err);
+                        return `
+                        <div class="border rounded p-2 mb-2 position-relative">
+                            <small class="fw-semibold text-muted">Usuário desconhecido</small><br>
+                            <span>${c.text}</span><br>
+                            <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
+                        </div>
+                    `;
+                    }
+                })
+            );
+
+            commentListContainer.innerHTML = commentsHTML.join("");
         } catch (error) {
             console.error("Erro ao carregar comentários:", error);
+            commentListContainer.innerHTML = `<p class="text-danger small">Erro ao carregar comentários.</p>`;
         }
     }
+
 
     addCommentBtn.onclick = async () => {
         const text = commentInput.value.trim();
         if (!text) return alert("Digite um comentário antes de enviar.");
-
-        const userId = window.userId || 1;
         const createdAt = new Date().toISOString();
 
         try {
-            const response = await fetch(`/api/comments/create`, {
+            const response = await fetch(`/api/comments`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
