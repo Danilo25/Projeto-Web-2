@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     frameId: data.frameId,
                     finalDate: data.finalDate,
                     initialDate: new Date(),
-                    assigneeId: data.assigneeId
+                    status: data.status
                 })
             });
 
