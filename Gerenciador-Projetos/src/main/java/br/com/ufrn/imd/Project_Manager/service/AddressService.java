@@ -82,6 +82,10 @@ public class AddressService {
         Address existingAddress = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Endereço com ID '" + id + "' não encontrado."));
 
+        if (addressRequest.userId() == null || !addressRequest.userId().equals(existingAddress.getUser().getId())) {
+            throw new IllegalArgumentException("Erro de autorização: O ID do usuário na requisição não corresponde ao dono do endereço.");
+        }
+
         if (StringUtils.hasText(addressRequest.publicPlace())) {
             existingAddress.setPublicPlace(addressRequest.publicPlace());
         }
@@ -97,12 +101,7 @@ public class AddressService {
         if (StringUtils.hasText(addressRequest.zipCode())) {
             existingAddress.setZipCode(addressRequest.zipCode());
         }
-        if (addressRequest.userId() != null && !addressRequest.userId().equals(existingAddress.getUser().getId())) {
-            User newUser = userRepository.findById(addressRequest.userId())
-                    .orElseThrow(() -> new RuntimeException("Usuário com ID '" + addressRequest.userId() + "' não encontrado."));
-            existingAddress.setUser(newUser);
-        }
-
+        
         Address updatedAddress = addressRepository.save(existingAddress);
         return toAddressResponse(updatedAddress);
     }

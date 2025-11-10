@@ -85,7 +85,7 @@ public class AddressApiController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Atualiza um endereço", description = "Atualiza os dados do endereço existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereço atualizado com sucesso"),
@@ -95,7 +95,7 @@ public class AddressApiController {
 
     })
     public ResponseEntity<?> updateAddress(
-            @Parameter(description = "ID do usuário cujo endereço será atualizado", required = true) @PathVariable Long id,
+            @Parameter(description = "ID do endereço a ser atualizado", required = true) @PathVariable Long id,
             @RequestBody AddressRequest addressRequest) {
         try {
             AddressResponse updatedAddress = addressService.updateAddress(id, addressRequest);

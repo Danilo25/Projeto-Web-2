@@ -16,7 +16,7 @@ export async function fetchUserAddress(userId) {
 }
 
 export async function saveUserAddress(userId, addressData, isUpdating) {
-    const method = isUpdating ? 'PUT' : 'POST';
+    const method = isUpdating ? 'PATCH' : 'POST';
     const requestBody = { ...addressData, userId: userId };
     let url = '/api/addresses';
     if (isUpdating) {
