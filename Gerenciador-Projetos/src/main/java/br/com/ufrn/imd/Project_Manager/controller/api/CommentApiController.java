@@ -33,7 +33,7 @@ public class CommentApiController {
     })
     public ResponseEntity<Page<CommentResponse>> getTasks(@Parameter(description = "ID da tarefa para buscar comentários específicos") @RequestParam(required = false) Long taskId,
                                                           @Parameter(description = "Texto do comentário para busca") @RequestParam(required = false) String text,
-                                                          @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+                                                          @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         Page<CommentResponse> comments = this.commentService.searchComments(taskId, text, pageable);
         return ResponseEntity.ok().body(comments);
     }
