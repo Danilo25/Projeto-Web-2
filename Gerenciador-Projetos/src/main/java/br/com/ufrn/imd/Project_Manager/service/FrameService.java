@@ -9,6 +9,8 @@ import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
 import br.com.ufrn.imd.Project_Manager.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,9 +39,9 @@ public class FrameService {
                 );
     }
 
-    public List<FrameResponse> searchFrames(String name) {
-        List<Frame> frames = this.frameRepository.searchFrames(name);
-        return frames.stream().map(this::toFrameResponse).toList();
+    public Page<FrameResponse> searchFrames(String name, Pageable pageable) {
+        Page<Frame> frames = this.frameRepository.searchFrames(name, pageable);
+        return frames.map(this::toFrameResponse);
     }
 
     public FrameResponse getFrameById(Long frameId) {
