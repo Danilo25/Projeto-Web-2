@@ -14,7 +14,6 @@ import java.util.Optional;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
     
-    Set<Team> findByUsers_Id(Long userId);
     boolean existsByNameIgnoreCase(String name);
     Optional<Team> findByNameIgnoreCase(String name);
 

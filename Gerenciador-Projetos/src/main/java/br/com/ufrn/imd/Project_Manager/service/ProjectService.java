@@ -10,6 +10,8 @@ import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
 import br.com.ufrn.imd.Project_Manager.repository.ProjectRepository;
 import br.com.ufrn.imd.Project_Manager.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +42,9 @@ public class ProjectService {
         );
     }
 
-    public List<ProjectResponse> searchProjects(String name, Long teamId) {
-        List<Project> projects = this.projectRepository.searchProjects(name, teamId);
-        return projects.stream().map(this::toProjectResponse).toList();
+    public Page<ProjectResponse> searchProjects(String name, Long teamId, Pageable pageable) {
+        Page<Project> projects = this.projectRepository.searchProjects(name, teamId, pageable);
+        return projects.map(this::toProjectResponse);
     }
 
     public ProjectResponse getProjectById(Long projectId) {
