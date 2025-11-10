@@ -1,6 +1,8 @@
 package br.com.ufrn.imd.Project_Manager.repository;
 
 import br.com.ufrn.imd.Project_Manager.model.Comment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +17,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         WHERE :taskId IS NULL OR c.task.id = :taskId
             AND (:text IS NULL OR LOWER(c.text) LIKE LOWER(CONCAT('%', :text, '%')))
     """)
-    List<Comment> searchComments(@Param("taskId") Long taskId,
-                                 @Param("text") String text);
+    Page<Comment> searchComments(@Param("taskId") Long taskId,
+                                 @Param("text") String text,
+                                 Pageable pageable);
 
 }

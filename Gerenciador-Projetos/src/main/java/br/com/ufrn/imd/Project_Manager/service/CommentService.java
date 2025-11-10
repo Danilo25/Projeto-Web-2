@@ -9,6 +9,8 @@ import br.com.ufrn.imd.Project_Manager.repository.CommentRepository;
 import br.com.ufrn.imd.Project_Manager.repository.TaskRepository;
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,9 +37,9 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponse> searchComments(Long taskId, String text) {
-        List<Comment> comments = this.commentRepository.searchComments(taskId, text);
-        return comments.stream().map(this::toCommentResponse).toList();
+    public Page<CommentResponse> searchComments(Long taskId, String text, Pageable pageable) {
+        Page<Comment> comments = this.commentRepository.searchComments(taskId, text, pageable);
+        return comments.map(this::toCommentResponse);
     }
 
     public CommentResponse getCommentById(Long commentId) {
