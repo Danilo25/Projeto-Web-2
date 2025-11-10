@@ -8,7 +8,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="createTaskForm">
+                    <form id="createTaskForm" th:data-team-id="${project.teamId}">
                         <input type="hidden" name="projectId" th:value="${project.id}">
 
                         <div class="mb-3">
@@ -38,9 +38,16 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label class="form-label fw-semibold">Responsável</label>
-                            <input type="text" class="form-control" name="assigneeId" placeholder="Ex: João Silva">
+                            
+                            <div id="create-task-assignee-display" class="d-none list-group-item d-flex justify-content-between align-items-center"></div>
+
+                            <input type="text" class="form-control" id="create-task-assignee-search" placeholder="Digite um nome para buscar..." autocomplete="off">
+                            
+                            <input type="hidden" id="create-task-assignee-id" name="assigneeId">
+                            
+                            <ul id="create-task-assignee-results" class="list-group mt-1" style="position: absolute; z-index: 1056; width: 100%;"></ul>
                         </div>
 
                         <div class="mb-3">

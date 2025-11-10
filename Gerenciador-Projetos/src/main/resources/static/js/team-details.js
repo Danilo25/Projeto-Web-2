@@ -1,5 +1,6 @@
 import { showAlert } from './ui/showAlert.js';
 import { initializeMemberSearch, addMemberToList, createMemberLi } from './ui/teamModalUi.js';
+import { createProject } from './api/projectApi.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const userId = document.getElementById('user-context')?.dataset.userid;
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderTeamInfo(teamData);
         
         setupTeamModal(teamData);
+        setupCreateProjectModal(teamData);
 
     } catch (error) {
         console.error('Erro ao carregar equipe:', error);
@@ -26,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const projectsData = await fetchTeamProjects(teamId);
-        renderProjectsTable(projectsData);
+        renderProjectsTable(projectsData.content, userId);
     } catch (error) {
         console.error('Erro ao carregar projetos:', error);
         showAlert('Erro ao buscar projetos da equipe. (Backend)', 'danger', alertPlaceholder);
@@ -58,11 +60,11 @@ function renderTeamInfo(team) {
     document.getElementById('team-description').textContent = team.description || 'Equipe sem descrição.';
 }
 
-function renderProjectsTable(projects) {
+function renderProjectsTable(projects, userId) {
     const tbody = document.querySelector('#projectsTable tbody');
     
     if (!projects || projects.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">
             Esta equipe ainda não possui projetos.
         </td></tr>`;
         return;
@@ -71,11 +73,16 @@ function renderProjectsTable(projects) {
     tbody.innerHTML = projects.map(project => `
         <tr>
             <td>
-                <a href="#">${project.name}</a> 
+                ${project.name} 
             </td>
             <td>${project.description || 'Sem descrição.'}</td>
             <td><span class="badge bg-info text-dark">${project.status || 'N/A'}</span></td>
             <td>${project.finalDate ? new Date(project.finalDate).toLocaleDateString('pt-BR') : '—'}</td>
+            <td>
+                <a href="/web/project/${userId}/${project.id}/board" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-kanban"></i> Ver Quadro
+                </a>
+            </td>
         </tr>
     `).join('');
 }
@@ -153,7 +160,7 @@ async function handleEditTeamSubmit(event, teamId, modalInstance) {
 
     try {
         const response = await fetch(`/api/teams/${teamId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(teamRequest)
         });
@@ -184,6 +191,47 @@ function initializeMemberRemoval() {
             if (membersList.children.length === 0) {
                 membersList.innerHTML = '<li class="list-group-item">Nenhum membro nesta equipe.</li>';
             }
+        }
+    });
+}
+
+function setupCreateProjectModal(teamData) {
+    const createProjectModalEl = document.getElementById('createProjectModal');
+    if (!createProjectModalEl) return;
+
+    const teamSelect = createProjectModalEl.querySelector('#teamSelect');
+    const saveProjectBtn = createProjectModalEl.querySelector('#saveProjectBtn');
+    const projectForm = createProjectModalEl.querySelector('#projectForm');
+
+    createProjectModalEl.addEventListener('show.bs.modal', () => {
+        teamSelect.innerHTML = `<option value="${teamData.id}" selected>${teamData.name}</option>`;
+        teamSelect.disabled = true; 
+        projectForm.reset();
+    });
+
+    saveProjectBtn.addEventListener('click', async () => {
+        const formData = new FormData(projectForm);
+        
+        const project = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            initialDate: formData.get('initialDate') || null,
+            finalDate: formData.get('finalDate') || null,
+            status: formData.get('status'),
+            teamId: teamData.id
+        };
+
+        if (!project.name || !project.teamId) {
+            alert('Nome do projeto e Equipe são obrigatórios.');
+            return;
+        }
+
+        try {
+            await createProject(project);
+            window.location.reload();
+        } catch (e) {
+            console.error('Erro ao criar projeto:', e);
+            alert('Erro ao criar projeto: ' + e.message);
         }
     });
 }

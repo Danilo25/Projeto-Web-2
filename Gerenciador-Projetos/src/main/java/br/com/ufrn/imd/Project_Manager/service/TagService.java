@@ -81,6 +81,7 @@ public class TagService {
         if (task.getTags().contains(tag)){
             throw  new RuntimeException("Tag already associated!");
         }
+        task.getTags().add(tag);
         this.taskRepository.save(task);
     }
 
