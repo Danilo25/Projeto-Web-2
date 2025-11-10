@@ -1,6 +1,5 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.DashboardPageProjectResponse;
 import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectResponse;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
@@ -10,10 +9,10 @@ import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
 import br.com.ufrn.imd.Project_Manager.repository.ProjectRepository;
 import br.com.ufrn.imd.Project_Manager.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class ProjectService {
@@ -40,9 +39,9 @@ public class ProjectService {
         );
     }
 
-    public List<ProjectResponse> searchProjects(String name, Long teamId) {
-        List<Project> projects = this.projectRepository.searchProjects(name, teamId);
-        return projects.stream().map(this::toProjectResponse).toList();
+    public Page<ProjectResponse> searchProjects(String name, Long teamId, Pageable pageable) {
+        Page<Project> projects = this.projectRepository.searchProjects(name, teamId, pageable);
+        return projects.map(this::toProjectResponse);
     }
 
     public ProjectResponse getProjectById(Long projectId) {
@@ -71,7 +70,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse updateProject(Long projectId, ProjectRequest project){
+    public ProjectResponse updateProject(Long projectId, ProjectRequest project) {
         Project oldProject = this.projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found!"));
 
@@ -87,7 +86,7 @@ public class ProjectService {
         if (project.finalDate() != null) {
             oldProject.setFinalDate(project.finalDate());
         }
-        if (project.status() != null){
+        if (project.status() != null) {
             oldProject.setStatus(project.status());
         }
         if (project.teamId() != null) {
@@ -129,7 +128,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse removeFrameFromProject(Long projectId, Long frameId){
+    public ProjectResponse removeFrameFromProject(Long projectId, Long frameId) {
         Project project = this.projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found!"));
 

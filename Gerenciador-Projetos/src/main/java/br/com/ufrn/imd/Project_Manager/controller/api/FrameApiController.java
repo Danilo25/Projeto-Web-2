@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/frames")
@@ -30,8 +31,9 @@ public class FrameApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de quadros retornada com sucesso")
     })
-    public ResponseEntity<List<FrameResponse>> getFrames(@Parameter(description = "Nome do quadro para busca (opcional)") @RequestParam(required = false) String name) {
-        List<FrameResponse> frames = frameService.searchFrames(name);
+    public ResponseEntity<Page<FrameResponse>> getFrames(@Parameter(description = "Nome do quadro para busca (opcional)") @RequestParam(required = false) String name,
+                                                         @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        Page<FrameResponse> frames = frameService.searchFrames(name, pageable);
         return ResponseEntity.ok().body(frames);
     }
 

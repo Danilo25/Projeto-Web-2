@@ -1,6 +1,5 @@
 package br.com.ufrn.imd.Project_Manager.service;
 
-import br.com.ufrn.imd.Project_Manager.dtos.DashboardPageTeamResponse;
 import br.com.ufrn.imd.Project_Manager.dtos.api.TeamRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.TeamResponse;
 import br.com.ufrn.imd.Project_Manager.model.Team;
@@ -12,14 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

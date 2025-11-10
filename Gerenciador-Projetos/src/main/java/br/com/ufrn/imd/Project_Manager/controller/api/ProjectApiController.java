@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -31,9 +32,10 @@ public class ProjectApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de projetos retornada com sucesso")
     })
-    public ResponseEntity<List<ProjectResponse>> getProjects(@Parameter(description = "Nome parcial para filtrar projetos (opcional)") @RequestParam(required = false) String name,
-                                                             @Parameter(description = "ID da equipe para filtrar projetos (opcional)") @RequestParam(required = false) Long teamId) {
-        List<ProjectResponse> projects = projectService.searchProjects(name, teamId);
+    public ResponseEntity<Page<ProjectResponse>> getProjects(@Parameter(description = "Nome parcial para filtrar projetos (opcional)") @RequestParam(required = false) String name,
+                                                             @Parameter(description = "ID da equipe para filtrar projetos (opcional)") @RequestParam(required = false) Long teamId,
+                                                             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        Page<ProjectResponse> projects = projectService.searchProjects(name, teamId, pageable);
         return ResponseEntity.ok().body(projects);
     }
 

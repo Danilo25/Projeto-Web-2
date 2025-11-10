@@ -10,9 +10,9 @@ import br.com.ufrn.imd.Project_Manager.repository.TaskRepository;
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -40,9 +40,9 @@ public class TaskService {
         );
     }
 
-    public List<TaskResponse> searchTasks(String name) {
-        List<Task> tasks = this.taskRepository.searchTasks(name);
-        return tasks.stream().map(this::toTaskResponse).toList();
+    public Page<TaskResponse> searchTasks(String name, Pageable pageable) {
+        Page<Task> tasks = this.taskRepository.searchTasks(name, pageable);
+        return tasks.map(this::toTaskResponse);
     }
 
     public TaskResponse getTaskById(Long taskId) {

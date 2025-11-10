@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -30,9 +31,10 @@ public class CommentApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de comentários retornada com sucesso.")
     })
-    public ResponseEntity<List<CommentResponse>> getTasks(@Parameter(description = "ID da tarefa para buscar comentários específicos") @RequestParam(required = false) Long taskId,
-                                                          @Parameter(description = "Texto do comentário para busca") @RequestParam(required = false) String text) {
-        List<CommentResponse> comments = this.commentService.searchComments(taskId, text);
+    public ResponseEntity<Page<CommentResponse>> getTasks(@Parameter(description = "ID da tarefa para buscar comentários específicos") @RequestParam(required = false) Long taskId,
+                                                          @Parameter(description = "Texto do comentário para busca") @RequestParam(required = false) String text,
+                                                          @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        Page<CommentResponse> comments = this.commentService.searchComments(taskId, text, pageable);
         return ResponseEntity.ok().body(comments);
     }
 
