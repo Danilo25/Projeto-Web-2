@@ -70,6 +70,7 @@ async function loadUserAddress() {
     
     try {
         currentUserAddress = await fetchUserAddress(userId);
+        console.log("Endereço carregado (processado):", currentUserAddress);
         
         if (currentUserAddress === null) {
             addressCardBody.innerHTML = `<p class="text-muted">Nenhum endereço cadastrado.</p>`;
@@ -144,6 +145,9 @@ async function handleAddressFormSubmit(e) {
     };
     
     const isUpdating = currentUserAddress !== null;
+    if (isUpdating) {
+        addressRequest.id = currentUserAddress.id;
+    }
 
     try {
         await saveUserAddress(userId, addressRequest, isUpdating);

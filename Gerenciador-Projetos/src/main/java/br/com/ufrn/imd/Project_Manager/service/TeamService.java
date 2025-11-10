@@ -68,7 +68,7 @@ public class TeamService {
         newTeam.setDescription(teamRequest.description());
 
         List<User> teamMembers = new ArrayList<>();
-        teamMembers.add(creator);
+        // teamMembers.add(creator);
         if (teamRequest.userIds() != null && !teamRequest.userIds().isEmpty()) {
             List<User> selectedUsers = userRepository.findAllById(teamRequest.userIds());
             List<Long> foundUserIds = selectedUsers.stream().map(User::getId).toList();

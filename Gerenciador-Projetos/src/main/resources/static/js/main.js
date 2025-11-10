@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const allProjects = await fetchAllProjects();
         const teamIds = new Set(teams.map(t => t.id));
-        const userProjects = allProjects.filter(p => teamIds.has(p.teamId));
+        const userProjects = allProjects.content.filter(p => teamIds.has(p.teamId));
 
         renderProjects(userProjects, teams, userId);
 

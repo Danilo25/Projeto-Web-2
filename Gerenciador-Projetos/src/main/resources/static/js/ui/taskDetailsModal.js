@@ -1,9 +1,15 @@
+import { initializeAssigneeSelector } from './assigneeSelector.js';
+
 document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("taskDetailsModal");
     const form = document.getElementById("taskDetailsForm");
 
     if (!modal || !form) return;
-    window.openTaskDetails = async (taskId, userId) => {
+    
+    window.openTaskDetails = async (cardElement, userId) => {
+        const taskId = cardElement.dataset.taskId;
+        const teamId = cardElement.dataset.teamId;
+        
         try {
             const response = await fetch(`/api/tasks/${taskId}`);
             if (!response.ok) return alert("Erro ao carregar detalhes da tarefa");
@@ -16,9 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
             form.querySelector("#task-initialDate").value = task.initialDate || "";
             form.querySelector("#task-finalDate").value = task.finalDate || "";
             form.querySelector("#task-status").value = task.status || "PENDENTE";
+            form.querySelector("#task-assignee-id").value = task.assigneeId || "";
 
             initializeTaskTagManagement(taskId);
             initializeTaskCommentManagement(taskId, userId);
+            initializeAssigneeSelector('task', teamId, {
+                id: task.assigneeId,
+                name: task.assigneeName
+            });
 
             const modalInstance = new bootstrap.Modal(modal);
             modalInstance.show();
@@ -62,7 +73,6 @@ window.initializeTaskTagManagement = function (taskId) {
         try {
             const response = await fetch(`/api/tags/task/${taskId}`);
             if (!response.ok) {
-                console.log("aaaaaaaaaaaaaaa");
                 tagListContainer.innerHTML = `<span class="text-muted small">Nenhuma tag associada</span>`;
                 return;
             }
@@ -114,12 +124,21 @@ window.initializeTaskTagManagement = function (taskId) {
     };
 
     addTagBtn.onclick = async () => {
-        console.log("Botão encontrado:", addTagBtn);
         const tagName = tagInput.value.trim();
         if (!tagName) return alert("Informe o nome da tag a adicionar.");
 
         try {
-            const response = await fetch(`/api/tags/add-to-task?tagId=${1}&taskId=${taskId}`, {
+            const searchResponse = await fetch(`/api/tags?name=${encodeURIComponent(tagName)}`);
+            if (!searchResponse.ok) throw new Error('Tag não encontrada.');
+
+            const tagPage = await searchResponse.json();
+            if (!tagPage.content || tagPage.content.length === 0) {
+                alert(`A tag "${tagName}" não foi encontrada. Crie-a primeiro usando o botão 'Criar Etiqueta'.`);
+                return;
+            }
+
+            const tagToAdd = tagPage.content[0];
+            const response = await fetch(`/api/tags/add-to-task?tagId=${tagToAdd.id}&taskId=${taskId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" }
             });
@@ -134,6 +153,7 @@ window.initializeTaskTagManagement = function (taskId) {
             await loadTags();
         } catch (error) {
             console.error("Erro ao adicionar tag:", error);
+            alert(error.message);
         }
     };
 
@@ -145,7 +165,7 @@ window.initializeTaskTagManagement = function (taskId) {
         if (!confirm("Tem certeza que deseja remover esta tag?")) return;
 
         try {
-            const response = await fetch(`/api/tags//remove-from-task?tagId=${1}&taskId=${taskId}`, { method: "DELETE" });
+            const response = await fetch(`/api/tags/remove-from-task?tagId=${tagId}&taskId=${taskId}`, { method: "DELETE" });
 
             if (response.ok) {
                 await loadTags();
@@ -162,7 +182,7 @@ window.initializeTaskTagManagement = function (taskId) {
 };
 
 
-window.initializeTaskCommentManagement = function (taskId, userId) {
+window.initializeTaskCommentManagement = function (taskId, globalUserID) {
     const commentListContainer = document.getElementById("task-comments");
     const commentInput = document.getElementById("new-comment-input");
     const addCommentBtn = document.getElementById("btn-add-comment");
@@ -180,7 +200,12 @@ window.initializeTaskCommentManagement = function (taskId, userId) {
                 return;
             }
 
-            const comments = await response.json();
+            const commentsPage = await response.json();
+            const comments = commentsPage.content;
+            if (!comments || comments.length === 0) {
+                commentListContainer.innerHTML = `<p class="text-muted small">Sem comentários ainda.</p>`;
+                return;
+            }
 
             const commentsHTML = await Promise.all(
                 comments.map(async (c) => {
@@ -274,5 +299,3 @@ window.initializeTaskCommentManagement = function (taskId, userId) {
 
     loadComments();
 };
-
-

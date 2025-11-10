@@ -43,10 +43,10 @@
                 <div th:each="task : ${frame.tasks}"
                      class="kanban-card p-3 mb-3"
                      draggable="true"
-                     th:attr="data-task-id=${task.id}"
+                     th:attr="data-task-id=${task.id}, data-team-id=${project.teamId}"
                      ondragstart="this.dataset.dragging = true; dragTask(event);"
                      ondragend="this.dataset.dragging = false;"
-                     onclick="if (this.dataset.dragging !== 'true') openTaskDetails(this.dataset.taskId, userId)">
+                     onclick="if (this.dataset.dragging !== 'true') openTaskDetails(this, userId)">
 
                     <h6 class="mb-1 fw-semibold text-wrap" th:text="${task.name}">Nome da Tarefa</h6>
 
@@ -103,9 +103,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/ui/frameModal.js"></script>
-<script src="/js/ui/taskModal.js"></script>
+<script type="module" src="/js/ui/taskModal.js"></script>
 <script src="/js/ui/kanbanDrag.js"></script>
-<script src="/js/ui/taskDetailsModal.js"></script>
+<script type="module" src="/js/ui/taskDetailsModal.js"></script>
 
 </body>
 </html>

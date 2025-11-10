@@ -6,7 +6,7 @@ export async function fetchUserDetails(userId) {
 
 export async function updateUser(userId, userData) {
     const response = await fetch(`/api/users/${userId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
     });
