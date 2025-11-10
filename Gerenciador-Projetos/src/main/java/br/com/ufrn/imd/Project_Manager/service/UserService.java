@@ -6,18 +6,12 @@ import br.com.ufrn.imd.Project_Manager.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class UserService {
