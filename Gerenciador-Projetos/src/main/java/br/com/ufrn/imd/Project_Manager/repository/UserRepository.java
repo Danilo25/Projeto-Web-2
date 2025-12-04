@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("""
     SELECT u FROM User u
         WHERE (:name IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%')))
-        AND (:position IS NULL OR LOWER(u.position) LIKE LOWER(CONCAT('%', :position, '%')))
+        AND (:position IS NULL OR LOWER(CONCAT(u.position.name, ' ', u.position.level)) LIKE LOWER(CONCAT('%', :position, '%')))
     """)
     Page<User> searchUsers(@Param("name") String name,
                            @Param("position") String position,

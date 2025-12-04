@@ -1,13 +1,12 @@
 package br.com.ufrn.imd.Project_Manager.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -22,7 +21,10 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private String position;
+
+    @ManyToOne
+    @JoinColumn(name = "position_id")
+    private Position position;
 
     @ManyToMany(mappedBy = "users")
     @JsonIgnore
@@ -31,11 +33,17 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String password, String position) {
+    public User(String name, String email, String password, Position position) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.position = position;
+    }
+
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
     }
 
 }

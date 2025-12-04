@@ -2,7 +2,9 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.api.UserRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.UserResponse;
+import br.com.ufrn.imd.Project_Manager.model.Position;
 import br.com.ufrn.imd.Project_Manager.model.User;
+import br.com.ufrn.imd.Project_Manager.repository.PositionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +21,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PositionService positionService;
+
+    @Autowired
+    private PositionRepository positionRepository;
+
     private UserResponse toUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getPosition()
+                user.getPosition() != null ?
+                        positionService.toPositionResponse(user.getPosition())
+                        : null
         );
     }
 
@@ -48,12 +58,15 @@ public class UserService {
             throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso.");
         }
 
-        User newUser = new User(
-                userRequest.name(),
-                userRequest.email(),
-                userRequest.password(),
-                userRequest.position()
-        );
+        User newUser;
+        if (userRequest.positionId() != null) {
+            Position position = this.positionRepository.findById(userRequest.positionId())
+                    .orElseThrow(() -> new RuntimeException("Position not found!"));
+
+            newUser = new User(userRequest.name(), userRequest.email(), userRequest.password(), position);
+        } else {
+            newUser = new User(userRequest.name(), userRequest.email(), userRequest.password());
+        }
 
         User savedUser = userRepository.save(newUser);
         return toUserResponse(savedUser);
@@ -81,8 +94,11 @@ public class UserService {
         if (userRequest.password() != null) {
             existingUser.setPassword(userRequest.password());
         }
-        if (userRequest.position() != null) {
-            existingUser.setPosition(userRequest.position());
+        if (userRequest.positionId() != null) {
+            Position position = this.positionRepository.findById(userRequest.positionId())
+                    .orElseThrow(() -> new RuntimeException("Position not found!"));
+
+            existingUser.setPosition(position);
         }
 
         User updatedUser = userRepository.save(existingUser);
