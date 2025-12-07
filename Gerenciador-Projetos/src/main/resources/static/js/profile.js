@@ -1,11 +1,10 @@
 import { fetchUserDetails, updateUser } from './api/userApi.js';
 import { fetchUserAddress, saveUserAddress } from './api/addressApi.js';
-
 import { showAlert } from './ui/showAlert.js';
-
 
 let currentUserData = null;
 let currentUserAddress = null;
+
 const userId = document.getElementById('user-context')?.dataset.userid;
 
 const alertPlaceholder = document.getElementById('alert-placeholder');
@@ -37,7 +36,6 @@ const editCityInput = document.getElementById('edit-city');
 const editStateInput = document.getElementById('edit-state');
 const editZipCodeInput = document.getElementById('edit-zipCode');
 
-
 function clearAlert(element = alertPlaceholder) {
     element.innerHTML = '';
 }
@@ -47,17 +45,21 @@ async function loadUserProfile() {
         userNameTitle.textContent = "Erro: ID de usuário não encontrado.";
         return;
     }
+
     try {
         currentUserData = await fetchUserDetails(userId);
 
         userNameTitle.textContent = `Perfil de ${currentUserData.name}`;
         infoName.textContent = currentUserData.name;
         infoEmail.textContent = currentUserData.email;
-        infoPosition.textContent = currentUserData.position || 'N/A';
+        infoPosition.textContent = currentUserData.position
+            ? `${currentUserData.position.name} (Nível ${currentUserData.position.level})`
+            : 'N/A';
 
         editNameInput.value = currentUserData.name;
         editEmailInput.value = currentUserData.email;
-        editPositionInput.value = currentUserData.position || '';
+
+        await loadPositions(currentUserData.position?.id || null);
 
     } catch (error) {
         console.error(error);
@@ -67,12 +69,11 @@ async function loadUserProfile() {
 
 async function loadUserAddress() {
     if (!userId) return;
-    
+
     try {
         currentUserAddress = await fetchUserAddress(userId);
-        console.log("Endereço carregado (processado):", currentUserAddress);
-        
-        if (currentUserAddress === null) {
+
+        if (!currentUserAddress) {
             addressCardBody.innerHTML = `<p class="text-muted">Nenhum endereço cadastrado.</p>`;
             btnEditAddress.textContent = "Cadastrar Endereço";
             editAddressModalLabel.textContent = "Cadastrar Novo Endereço";
@@ -91,7 +92,6 @@ async function loadUserAddress() {
             btnEditAddress.textContent = "Editar";
             editAddressModalLabel.textContent = "Editar Endereço";
         }
-
     } catch (error) {
         console.error(error);
         addressCardBody.innerHTML = `<p class="text-danger">Erro ao carregar endereço.</p>`;
@@ -110,14 +110,37 @@ function clearAddressForm() {
     editAddressForm.reset();
 }
 
+async function loadPositions(selectedId = null) {
+    try {
+        const response = await fetch(`/api/positions?page=0&size=100`);
+        if (!response.ok) throw new Error("Erro ao buscar cargos");
+
+        const data = await response.json();
+        const positions = data.content || [];
+
+        editPositionInput.innerHTML = '<option value="">Selecione um cargo...</option>';
+        positions.forEach(pos => {
+            const option = document.createElement('option');
+            option.value = pos.id; // id do cargo
+            option.textContent = `${pos.name} (Nível ${pos.level})`;
+            editPositionInput.appendChild(option);
+        });
+
+        if (selectedId) editPositionInput.value = String(selectedId);
+    } catch (error) {
+        console.error("Erro ao carregar cargos:", error);
+        showAlert("Erro ao carregar cargos.", "danger", userModalAlert);
+    }
+}
+
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     clearAlert(userModalAlert);
-    
+
     const userRequest = {
         name: editNameInput.value,
         email: editEmailInput.value,
-        position: editPositionInput.value,
+        positionId: editPositionInput.value || null,
         password: editPasswordInput.value || null
     };
 
@@ -128,7 +151,7 @@ async function handleUserFormSubmit(e) {
         editPasswordInput.value = '';
         loadUserProfile();
     } catch (error) {
-         showAlert(error.message || 'Erro ao atualizar perfil.', 'danger', userModalAlert);
+        showAlert(error.message || 'Erro ao atualizar perfil.', 'danger', userModalAlert);
     }
 }
 
@@ -143,7 +166,7 @@ async function handleAddressFormSubmit(e) {
         state: editStateInput.value,
         zipCode: editZipCodeInput.value
     };
-    
+
     const isUpdating = currentUserAddress !== null;
     if (isUpdating) {
         addressRequest.id = currentUserAddress.id;
@@ -164,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAlert('Erro fatal: ID do usuário não encontrado. Faça login novamente.', 'danger');
         return;
     }
-    
+
     loadUserProfile();
     loadUserAddress();
 

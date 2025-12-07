@@ -9,13 +9,13 @@ form.addEventListener('submit', async (event) => {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const position = document.getElementById('position').value;
+    const positionId = document.getElementById('positionSelect').value;
 
     const userData = {
-        name: name,
-        email: email,
-        password: password,
-        position: position
+        name,
+        email,
+        password,
+        positionId: positionId ? Number(positionId) : null
     };
 
     try {
@@ -30,9 +30,7 @@ form.addEventListener('submit', async (event) => {
         if (response.status === 201) {
             showAlert('Usuário cadastrado com sucesso! Redirecionando para login...', 'success', alertPlaceholder);
             form.reset();
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 2000);
+
 
         } else {
             const errorMessage = await response.text();
