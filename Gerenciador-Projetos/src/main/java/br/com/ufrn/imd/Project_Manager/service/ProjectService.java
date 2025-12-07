@@ -2,9 +2,11 @@ package br.com.ufrn.imd.Project_Manager.service;
 
 import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectResponse;
+import br.com.ufrn.imd.Project_Manager.model.Client;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
 import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.model.Team;
+import br.com.ufrn.imd.Project_Manager.repository.ClientRepository;
 import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
 import br.com.ufrn.imd.Project_Manager.repository.ProjectRepository;
 import br.com.ufrn.imd.Project_Manager.repository.TeamRepository;
@@ -26,6 +28,9 @@ public class ProjectService {
     @Autowired
     private FrameRepository frameRepository;
 
+    @Autowired
+    private ClientRepository clientRepository;
+
     private ProjectResponse toProjectResponse(Project project) {
         return new ProjectResponse(
                 project.getId(),
@@ -35,7 +40,8 @@ public class ProjectService {
                 project.getFinalDate(),
                 project.getStatus(),
                 project.getTeam().getId(),
-                project.getFrames().stream().map(Frame::getId).toList()
+                project.getFrames().stream().map(Frame::getId).toList(),
+                project.getClient().getId()
         );
     }
 
@@ -64,6 +70,12 @@ public class ProjectService {
                 team
         );
 
+        if (project.clientId() != null) {
+            Client client = clientRepository.findById(project.clientId())
+                    .orElseThrow(() -> new RuntimeException("Client not found!"));
+            newProject.setClient(client);
+        }
+
         Project savedProject = this.projectRepository.save(newProject);
 
         return this.toProjectResponse(savedProject);
@@ -90,14 +102,17 @@ public class ProjectService {
             oldProject.setStatus(project.status());
         }
         if (project.teamId() != null) {
-            Team oldTeam = teamRepository.findById(project.teamId())
+            Team team = teamRepository.findById(project.teamId())
                     .orElseThrow(() -> new RuntimeException("Team not found!"));
-
-            oldProject.setTeam(oldTeam);
+            oldProject.setTeam(team);
+        }
+        if (project.clientId() != null) {
+             Client client = clientRepository.findById(project.clientId())
+                     .orElseThrow(() -> new RuntimeException("Client not found!"));
+             oldProject.setClient(client);
         }
 
         Project updatedProject = this.projectRepository.save(oldProject);
-
         return this.toProjectResponse(updatedProject);
     }
 
