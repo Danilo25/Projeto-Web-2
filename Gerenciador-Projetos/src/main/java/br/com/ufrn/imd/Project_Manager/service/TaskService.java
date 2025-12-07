@@ -3,6 +3,7 @@ package br.com.ufrn.imd.Project_Manager.service;
 import br.com.ufrn.imd.Project_Manager.dtos.api.TaskRequest;
 import br.com.ufrn.imd.Project_Manager.dtos.api.TaskResponse;
 import br.com.ufrn.imd.Project_Manager.model.Frame;
+import br.com.ufrn.imd.Project_Manager.model.Project;
 import br.com.ufrn.imd.Project_Manager.model.Task;
 import br.com.ufrn.imd.Project_Manager.model.User;
 import br.com.ufrn.imd.Project_Manager.repository.FrameRepository;
@@ -59,12 +60,28 @@ public class TaskService {
         if (task.frameId() != null) {
             Frame frame = this.frameRepository.findById(task.frameId())
                     .orElseThrow(() -> new RuntimeException("Frame not found!"));
+
+            Project project = frame.getProject();
+            if (project != null) {
+                if ((task.initialDate() != null && task.initialDate().isBefore(project.getInitialDate()))
+                        || (task.finalDate() != null && task.finalDate().isAfter(project.getFinalDate()))
+                ) {
+                    throw new RuntimeException("A tarefa não pode ter datas fora do intervalo do projeto!");
+                }
+            }
+
             newTask.setFrame(frame);
         }
         if (task.assigneeId() != null) {
             var user = this.userRepository.findById(task.assigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found!"));
             newTask.setAssignee(user);
+        }
+
+        if (task.initialDate() != null && task.finalDate() != null) {
+            if (task.finalDate().isBefore(task.initialDate())) {
+                throw new RuntimeException("A data final não pode ser anterior à data inicial!");
+            }
         }
 
         newTask.setName(task.name());
@@ -95,12 +112,28 @@ public class TaskService {
         if (task.finalDate() != null) {
             oldTask.setFinalDate(task.finalDate());
         }
+
+        if (oldTask.getInitialDate() != null && oldTask.getFinalDate() != null) {
+            if (oldTask.getFinalDate().isBefore(oldTask.getInitialDate())) {
+                throw new RuntimeException("A data final não pode ser anterior à data inicial!");
+            }
+        }
+
         if (task.status() != null) {
             oldTask.setStatus(task.status());
         }
         if (task.frameId() != null) {
             Frame frame = this.frameRepository.findById(task.frameId())
                     .orElseThrow(() -> new RuntimeException("Frame not found!"));
+
+            Project project = frame.getProject();
+            if (project != null) {
+                if ((task.initialDate() != null && task.initialDate().isBefore(project.getInitialDate()))
+                        || (task.finalDate() != null && task.finalDate().isAfter(project.getFinalDate()))
+                ) {
+                    throw new RuntimeException("A tarefa não pode ter datas fora do intervalo do projeto!");
+                }
+            }
 
             oldTask.setFrame(frame);
         }
