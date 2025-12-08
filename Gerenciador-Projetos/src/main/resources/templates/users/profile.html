@@ -29,7 +29,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">
+                    <a class="nav-link" th:href="@{/web/clients/{id}(id=${userId})}" id="menu-clients">
+                        <i class="bi bi-people-fill"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
                         <i class="bi bi-box-arrow-right"></i> Sair
                     </a>
                 </li>

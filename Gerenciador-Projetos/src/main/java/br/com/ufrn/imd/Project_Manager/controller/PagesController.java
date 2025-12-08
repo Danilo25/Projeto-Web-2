@@ -97,4 +97,10 @@ public class PagesController {
 
         return "projects/project-board";
     }
+
+    @GetMapping("/web/clients/{userId}")
+    public String clientsPage(@PathVariable Long userId, Model model) {
+        model.addAttribute("userId", userId);
+        return "clients/clients";
+    }
 }
