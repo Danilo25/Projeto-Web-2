@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -30,6 +31,9 @@ public class UserService implements UserDetailsService{
 
     @Autowired
     private PositionRepository positionRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -73,13 +77,17 @@ public class UserService implements UserDetailsService{
 
         String encodedPassword = passwordEncoder.encode(userRequest.password());
 
+        String encodedPassword = passwordEncoder.encode(userRequest.password());
+
         User newUser;
         if (userRequest.positionId() != null) {
             Position position = this.positionRepository.findById(userRequest.positionId())
                     .orElseThrow(() -> new RuntimeException("Position not found!"));
 
             newUser = new User(userRequest.name(), userRequest.email(), encodedPassword, position);
+            newUser = new User(userRequest.name(), userRequest.email(), encodedPassword, position);
         } else {
+            newUser = new User(userRequest.name(), userRequest.email(), encodedPassword);
             newUser = new User(userRequest.name(), userRequest.email(), encodedPassword);
         }
 
