@@ -85,4 +85,27 @@ public class User implements UserDetails {
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        System.out.println("[DEBUG STATUS] Verificando isAccountNonExpired: true");
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        System.out.println("[DEBUG STATUS] Verificando isAccountNonLocked: true");
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        System.out.println("[DEBUG STATUS] Verificando isCredentialsNonExpired: true");
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        System.out.println("[DEBUG STATUS] Verificando isEnabled: true");
+        return true;
+    }
 }

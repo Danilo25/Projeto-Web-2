@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav th:fragment="sidebar(activePage)" class="sidebar d-flex flex-column">
+    <h6 class="sidebar-heading">Menu</h6>
+    <ul class="nav flex-column mt-3">
+        <li class="nav-item">
+            <a class="nav-link" 
+               th:classappend="${activePage == 'home'} ? 'active'"
+               th:href="@{/web/home/{id}(id=${userId})}">
+                <i class="bi bi-house-door-fill"></i> Home
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" 
+               th:classappend="${activePage == 'profile'} ? 'active'"
+               th:href="@{/web/profile/{id}(id=${userId})}">
+                <i class="bi bi-person-circle"></i> Perfil
+            </a>
+        </li>
+
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+            <a class="nav-link collapsed d-flex justify-content-between align-items-center" 
+               href="#submenuGerenciar" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               th:aria-expanded="${activePage == 'positions' or activePage == 'clients'} ? 'true' : 'false'"
+               aria-controls="submenuGerenciar">
+                <span><i class="bi bi-gear-fill"></i> Gerenciar</span>
+                <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
+            </a>
+            
+            <div class="collapse" 
+                 th:classappend="${activePage == 'positions' or activePage == 'clients'} ? 'show'"
+                 id="submenuGerenciar">
+                <ul class="nav flex-column ms-3 border-start border-white border-opacity-25 ps-2">
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                           th:classappend="${activePage == 'positions'} ? 'active'"
+                           th:href="@{/web/positions}">
+                            <i class="bi bi-briefcase"></i> Cargos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                           th:classappend="${activePage == 'clients'} ? 'active'"
+                           th:href="@{/web/clients}">
+                            <i class="bi bi-people"></i> Clientes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </li>
+    </ul>
+</nav>
+
+</body>
+</html>

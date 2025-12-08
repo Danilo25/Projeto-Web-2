@@ -30,22 +30,22 @@ public class DataInitializer {
             Role roleAdmin = createRoleIfNotFound("ROLE_ADMIN");
             Role roleUser = createRoleIfNotFound("ROLE_USER");
 
-            if (userRepository.findByNameIgnoreCase("Administrador do Sistema").isEmpty()) {
+            if (userRepository.findByEmailIgnoreCase("admin@sistema.com").isEmpty()) {
                 User admin = new User();
-                admin.setName("Administrador do Sistema");
+                admin.setName("Administrador");
                 admin.setEmail("admin@sistema.com");
                 admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole(roleAdmin);
                 userRepository.save(admin);
-                System.out.println(">> Usuário ADMIN criado com sucesso!");
+                System.out.println(">> ADMIN criado: admin@sistema.com / admin123");
             }
         };
     }
 
-    private Role createRoleIfNotFound(String name) {
+    private Role createRoleIfNotFound(String email) {
         return roleRepository.findAll().stream()
-                .filter(r -> r.getName().equals(name))
+                .filter(r -> r.getName().equals(email))
                 .findFirst()
-                .orElseGet(() -> roleRepository.save(new Role(name)));
+                .orElseGet(() -> roleRepository.save(new Role(email)));
     }
 }
