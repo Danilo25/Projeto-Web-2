@@ -1,0 +1,43 @@
+<div th:fragment="cargoModal">
+    <div class="modal fade" id="addCargoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Novo Cargo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="cargoName" class="form-label">Nome do Cargo *</label>
+                        <input type="text" id="cargoName" class="form-control" placeholder="Ex: Analista">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cargoLevel" class="form-label">Nível do Cargo *</label>
+                        <input type="text" id="cargoLevel" class="form-control" placeholder="Ex: Pleno">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cargoDescription" class="form-label">Descrição</label>
+                        <textarea id="cargoDescription" class="form-control" rows="3"
+                                  placeholder="Descreva brevemente o cargo..."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveCargoBtn">
+                        Adicionar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

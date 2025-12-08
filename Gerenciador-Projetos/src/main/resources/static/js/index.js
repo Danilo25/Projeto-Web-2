@@ -7,7 +7,7 @@ async function fetchUsers(page = 0, size = defaultPageSize, sort = 'name') {
     paginationControls.innerHTML = '';
 
     try {
-        const apiUrl = `/api/users?page=${page}&size=${size}&sort=${sort}`;
+        const apiUrl = `/api/users?page=${page}&size=${size}&sort=${sort},asc`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -25,7 +25,10 @@ async function fetchUsers(page = 0, size = defaultPageSize, sort = 'name') {
                 nameCell.textContent = user.name || 'N/A';
 
                 const positionCell = row.insertCell();
-                positionCell.textContent = user.position || 'N/A';
+                positionCell.textContent =
+                    user.position
+                        ? `${user.position.name} (Nível ${user.position.level})`
+                        : 'N/A';
 
                 const actionCell = row.insertCell();
                 actionCell.className = 'text-end';
