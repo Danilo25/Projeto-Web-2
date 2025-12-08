@@ -31,7 +31,7 @@ form.addEventListener('submit', async (event) => {
             showAlert('Usuário cadastrado com sucesso! Redirecionando para login...', 'success', alertPlaceholder);
             form.reset();
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/login'; 
             }, 2000);
 
         } else {
