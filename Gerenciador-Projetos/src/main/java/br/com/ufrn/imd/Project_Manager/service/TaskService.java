@@ -106,18 +106,6 @@ public class TaskService {
         if (task.description() != null) {
             oldTask.setDescription(task.description());
         }
-        if (task.initialDate() != null) {
-            oldTask.setInitialDate(task.initialDate());
-        }
-        if (task.finalDate() != null) {
-            oldTask.setFinalDate(task.finalDate());
-        }
-
-        if (oldTask.getInitialDate() != null && oldTask.getFinalDate() != null) {
-            if (oldTask.getFinalDate().isBefore(oldTask.getInitialDate())) {
-                throw new RuntimeException("A data final não pode ser anterior à data inicial!");
-            }
-        }
 
         if (task.status() != null) {
             oldTask.setStatus(task.status());
@@ -137,6 +125,31 @@ public class TaskService {
 
             oldTask.setFrame(frame);
         }
+
+        if (task.initialDate() != null && task.finalDate() != null) {
+            if (task.finalDate().isBefore(task.initialDate())) {
+                throw new RuntimeException("A data final não pode ser anterior à data inicial!");
+            }
+
+            if (oldTask.getFrame() != null) {
+                Project project = oldTask.getFrame().getProject();
+                if (project != null) {
+                    if (task.initialDate().isBefore(project.getInitialDate())
+                            || task.finalDate().isAfter(project.getFinalDate())
+                    ) {
+                        throw new RuntimeException("A tarefa não pode ter datas fora do intervalo do projeto!");
+                    }
+                }
+            }
+        }
+
+        if (task.initialDate() != null) {
+            oldTask.setInitialDate(task.initialDate());
+        }
+        if (task.finalDate() != null) {
+            oldTask.setFinalDate(task.finalDate());
+        }
+
         if (task.assigneeId() != null) {
             User user = this.userRepository.findById(task.assigneeId())
                     .orElseThrow(() -> new RuntimeException("User not found!"));
