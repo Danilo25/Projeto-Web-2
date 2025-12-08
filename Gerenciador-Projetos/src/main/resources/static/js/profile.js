@@ -121,7 +121,7 @@ async function loadPositions(selectedId = null) {
         editPositionInput.innerHTML = '<option value="">Selecione um cargo...</option>';
         positions.forEach(pos => {
             const option = document.createElement('option');
-            option.value = pos.id; // id do cargo
+            option.value = pos.id;
             option.textContent = `${pos.name} (Nível ${pos.level})`;
             editPositionInput.appendChild(option);
         });

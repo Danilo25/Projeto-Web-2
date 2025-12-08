@@ -1,0 +1,41 @@
+<div th:fragment="createClientModal">
+    <div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="createClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-semibold" id="createClientModalLabel">Cadastrar Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="client-modal-alert" style="position: relative; z-index: 1057;"></div>
+
+                    <form id="create-client-form">
+                        <div class="mb-3">
+                            <label for="client-name" class="form-label fw-semibold">Nome *</label>
+                            <input type="text" class="form-control" id="client-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client-company" class="form-label fw-semibold">Empresa *</label>
+                            <input type="text" class="form-control" id="client-company" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client-email" class="form-label fw-semibold">Email *</label>
+                            <input type="email" class="form-control" id="client-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client-phone" class="form-label fw-semibold">Telefone</label>
+                            <input type="text" class="form-control" id="client-phone">
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary ms-2">Salvar Cliente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

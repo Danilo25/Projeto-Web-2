@@ -1,7 +1,7 @@
 import { fetchUserDetails } from './api/userApi.js';
 import { fetchUserTeams, createTeam } from './api/teamApi.js';
 import { fetchAllProjects, createProject } from './api/projectApi.js';
-
+import { fetchClientsByProjects } from './ui/projectUi.js';
 import { renderWelcomeMessage, showUserError } from './ui/userUi.js';
 import { renderTeamsCarousel } from './ui/teamUi.js';
 import { renderProjects } from './ui/projectUi.js';
@@ -29,10 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const teamIds = new Set(teams.map(t => t.id));
         const userProjects = allProjects.content.filter(p => teamIds.has(p.teamId));
 
-        renderProjects(userProjects, teams, userId);
+        const clients = await fetchClientsByProjects(userProjects);
+
+        renderProjects(userProjects, teams, userId, clients);
+
 
         fillSelectTimes(teams);
-        
+        fillSelectClients();
+
         setupTeamModal(user);
 
     } catch (e) {
@@ -69,7 +73,8 @@ document.getElementById('saveProjectBtn')?.addEventListener('click', async () =>
         initialDate: formData.get('initialDate'),
         finalDate: formData.get('finalDate'),
         status: formData.get('status'),
-        teamId: formData.get('teamId')
+        teamId: formData.get('teamId'),
+        clientId: formData.get('clientId')
     };
 
     try {
@@ -166,4 +171,34 @@ function initializeMemberRemoval(creatorIdToProtect) {
             memberItem.remove();
         }
     });
+}
+
+async function fillSelectClients() {
+    const select = document.getElementById('clientSelect');
+    select.innerHTML = '<option value="">Carregando clientes...</option>';
+
+    try {
+        const res = await fetch('/api/clients?page=0&size=100');
+        if (!res.ok) throw new Error('Erro ao buscar clientes');
+
+        const data = await res.json();
+        const clients = data.content || [];
+
+        if (!clients.length) {
+            select.innerHTML = '<option value="">Nenhum cliente encontrado</option>';
+            return;
+        }
+
+        select.innerHTML = '<option value="">Selecione um Cliente</option>';
+        clients.forEach(client => {
+            const opt = document.createElement('option');
+            opt.value = client.id;
+            opt.textContent = `${client.name} (${client.company})`;
+            select.appendChild(opt);
+        });
+
+    } catch (e) {
+        console.error('Erro ao carregar clientes:', e);
+        select.innerHTML = '<option value="">Erro ao carregar clientes</option>';
+    }
 }
