@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
 
-    boolean existsByNameAndCompanyAndEmailAllIgnoreCase(String name, String company, String email);
+    Optional<Client> findByNameAndCompanyAndEmailAllIgnoreCase(String name, String company, String email);
 
     @Query("""
         SELECT c FROM Client c

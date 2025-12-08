@@ -44,10 +44,12 @@ public class ClientService {
         || (clientRequest.email() == null || clientRequest.email().isEmpty())) {
             throw new RuntimeException("Nome, empresa ou email do clientRequeste não podem ser vazios.");
         }
-        if (clientRepository.existsByNameAndCompanyAndEmailAllIgnoreCase(
-                clientRequest.name(),
-                clientRequest.company(),
-                clientRequest.email())) {
+
+        Client existsClient = clientRepository.findByNameAndCompanyAndEmailAllIgnoreCase(
+                clientRequest.name(), clientRequest.company(), clientRequest.email())
+                .orElse(null);
+
+        if (existsClient != null) {
             throw new RuntimeException("Conflito: Cliente com o mesmo nome, empresa e email já existe.");
         }
 
@@ -67,6 +69,14 @@ public class ClientService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client not found!"));
 
+        Client existsClient = clientRepository.findByNameAndCompanyAndEmailAllIgnoreCase(
+                clientRequest.name(), clientRequest.company(), clientRequest.email())
+                .orElse(null);
+
+        if (existsClient != null && !existsClient.getId().equals(clientId)) {
+            throw new RuntimeException("Conflito: Cliente com o mesmo nome, empresa e email já existe.");
+        }
+
         if (clientRequest.name() != null) {
             client.setName(clientRequest.name());
         }
@@ -77,10 +87,6 @@ public class ClientService {
             client.setEmail(clientRequest.email());
         }
 
-        boolean exists = clientRepository.existsByNameAndCompanyAndEmailAllIgnoreCase(client.getName(), client.getCompany(), client.getEmail());
-        if (exists) {
-            throw new RuntimeException("Conflito: Cliente com o mesmo nome, empresa e email já existe.");
-        }
 
         if (clientRequest.phoneNumber() != null) {
             client.setPhoneNumber(clientRequest.phoneNumber());

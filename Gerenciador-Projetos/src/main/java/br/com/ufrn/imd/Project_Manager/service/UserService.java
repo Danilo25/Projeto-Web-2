@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,9 @@ public class UserService {
 
     @Autowired
     private PositionRepository positionRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private UserResponse toUserResponse(User user) {
         return new UserResponse(
@@ -58,14 +62,16 @@ public class UserService {
             throw new RuntimeException("Conflito: O nome '" + userRequest.name() + "' já está em uso.");
         }
 
+        String encodedPassword = passwordEncoder.encode(userRequest.password());
+
         User newUser;
         if (userRequest.positionId() != null) {
             Position position = this.positionRepository.findById(userRequest.positionId())
                     .orElseThrow(() -> new RuntimeException("Position not found!"));
 
-            newUser = new User(userRequest.name(), userRequest.email(), userRequest.password(), position);
+            newUser = new User(userRequest.name(), userRequest.email(), encodedPassword, position);
         } else {
-            newUser = new User(userRequest.name(), userRequest.email(), userRequest.password());
+            newUser = new User(userRequest.name(), userRequest.email(), encodedPassword);
         }
 
         User savedUser = userRepository.save(newUser);
@@ -91,8 +97,8 @@ public class UserService {
             }
             existingUser.setName(userRequest.name());
         }
-        if (userRequest.password() != null) {
-            existingUser.setPassword(userRequest.password());
+        if (userRequest.password() != null && !userRequest.password().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userRequest.password()));
         }
         if (userRequest.positionId() != null) {
             Position position = this.positionRepository.findById(userRequest.positionId())

@@ -30,7 +30,9 @@ form.addEventListener('submit', async (event) => {
         if (response.status === 201) {
             showAlert('Usuário cadastrado com sucesso! Redirecionando para login...', 'success', alertPlaceholder);
             form.reset();
-
+            setTimeout(() => {
+                window.location.href = '/login'; 
+            }, 2000);
 
         } else {
             const errorMessage = await response.text();
