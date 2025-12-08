@@ -42,6 +42,19 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder() {
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                System.out.println("--- [DEBUG AUTH] Iniciando Comparação de Senhas ---");
+                System.out.println("Senha digitada (raw): " + rawPassword);
+                System.out.println("Hash armazenado no banco: " + encodedPassword);
+                
+                boolean matches = super.matches(rawPassword, encodedPassword);
+                
+                System.out.println("Resultado da comparação: " + (matches ? "SUCESSO (Iguais)" : "FALHA (Diferentes)"));
+                System.out.println("---------------------------------------------------");
+                return matches;
+            }
+        };
     }
 }

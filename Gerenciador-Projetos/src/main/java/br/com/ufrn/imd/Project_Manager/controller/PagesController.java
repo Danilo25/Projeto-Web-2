@@ -8,13 +8,11 @@ import br.com.ufrn.imd.Project_Manager.service.FrameService;
 import br.com.ufrn.imd.Project_Manager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
-import br.com.ufrn.imd.Project_Manager.service.UserService;
 import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 
@@ -27,8 +25,6 @@ public class PagesController {
     private ProjectService projectService;
     @Autowired
     private FrameService frameService;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private UserRepository userRepository;
 

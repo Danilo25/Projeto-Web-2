@@ -8,10 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import java.util.Collections;
 import java.util.Collection;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.GrantedAuthority;
-import java.util.Collections;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +15,6 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "app_user")
-public class User implements UserDetails {
 public class User implements UserDetails {
 
     @Id
@@ -33,10 +28,6 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id") 
-    private Role role;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id") 
@@ -94,4 +85,27 @@ public class User implements UserDetails {
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        System.out.println("[DEBUG STATUS] Verificando isAccountNonExpired: true");
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        System.out.println("[DEBUG STATUS] Verificando isAccountNonLocked: true");
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        System.out.println("[DEBUG STATUS] Verificando isCredentialsNonExpired: true");
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        System.out.println("[DEBUG STATUS] Verificando isEnabled: true");
+        return true;
+    }
 }

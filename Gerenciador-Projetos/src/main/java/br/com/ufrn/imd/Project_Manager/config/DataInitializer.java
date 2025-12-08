@@ -42,10 +42,10 @@ public class DataInitializer {
         };
     }
 
-    private Role createRoleIfNotFound(String name) {
+    private Role createRoleIfNotFound(String email) {
         return roleRepository.findAll().stream()
-                .filter(r -> r.getName().equals(name))
+                .filter(r -> r.getName().equals(email))
                 .findFirst()
-                .orElseGet(() -> roleRepository.save(new Role(name)));
+                .orElseGet(() -> roleRepository.save(new Role(email)));
     }
 }
