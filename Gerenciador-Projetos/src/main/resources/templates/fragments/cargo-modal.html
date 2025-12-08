@@ -4,11 +4,12 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Adicionar Novo Cargo</h5>
+                    <h5 class="modal-title" id="cargoModalTitle">Adicionar Novo Cargo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
+                    <input type="hidden" id="cargoId">
 
                     <div class="mb-3">
                         <label for="cargoName" class="form-label">Nome do Cargo *</label>
@@ -33,7 +34,7 @@
                         Cancelar
                     </button>
                     <button type="button" class="btn btn-primary" id="saveCargoBtn">
-                        Adicionar
+                        Salvar
                     </button>
                 </div>
 

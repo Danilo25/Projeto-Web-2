@@ -3,14 +3,19 @@ package br.com.ufrn.imd.Project_Manager.controller;
 
 import br.com.ufrn.imd.Project_Manager.dtos.api.FrameResponse;
 import br.com.ufrn.imd.Project_Manager.dtos.api.ProjectResponse;
+import br.com.ufrn.imd.Project_Manager.model.User;
 import br.com.ufrn.imd.Project_Manager.service.FrameService;
 import br.com.ufrn.imd.Project_Manager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import br.com.ufrn.imd.Project_Manager.service.UserService;
+import br.com.ufrn.imd.Project_Manager.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -21,10 +26,22 @@ public class PagesController {
     private ProjectService projectService;
     @Autowired
     private FrameService frameService;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
-    public String index() {
-        return "index";
+    public String rootRedirect() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            String email = auth.getName();
+            User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+            
+            if (user != null) {
+                return "redirect:/web/home/" + user.getId();
+            }
+        }
+        return "redirect:/login";
     }
 
     @GetMapping("/web/home/{id}")
@@ -73,5 +90,36 @@ public class PagesController {
         model.addAttribute("frames", frames);
 
         return "projects/project-board";
+    }
+
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login";
+    }
+
+    @GetMapping("/web/positions")
+    public String showPositionsPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        
+        if (user != null) {
+            model.addAttribute("userId", user.getId());
+        }
+        
+        return "positions/positions";
+    }
+
+    @GetMapping("/web/clients")
+    public String showClientsPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        
+        if (user != null) {
+            model.addAttribute("userId", user.getId());
+        }
+        
+        return "clients/clients";
     }
 }
