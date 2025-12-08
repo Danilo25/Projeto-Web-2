@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -17,14 +18,17 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/login", "/web/register", "/api/users", "/api/positions/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/clients/**", "/roles/**").hasRole("ADMIN")
-                .requestMatchers("/web/positions/**", "/web/clients/**").hasRole("ADMIN")
-                .requestMatchers("/api/positions/**", "/api/clients/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
+            .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+            .requestMatchers("/login", "/web/register", "/api/users", "/api/positions/**").permitAll()
+            .requestMatchers("/h2-console/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/clients").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/clients/**").authenticated() 
+            .requestMatchers("/clients/**", "/roles/**").hasRole("ADMIN")
+            .requestMatchers("/web/positions/**", "/web/clients/**").hasRole("ADMIN")
+            .requestMatchers("/api/clients/**").hasRole("ADMIN")
+
+            .anyRequest().authenticated()
+        )
             .formLogin(form -> form
                 .loginPage("/login")
                 .usernameParameter("email")

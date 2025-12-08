@@ -189,7 +189,7 @@ async function fillSelectClients() {
             return;
         }
 
-        select.innerHTML = '';
+        select.innerHTML = '<option value="">Selecione um Cliente</option>';
         clients.forEach(client => {
             const opt = document.createElement('option');
             opt.value = client.id;
