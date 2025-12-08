@@ -41,7 +41,7 @@ public class ProjectService {
                 project.getStatus(),
                 project.getTeam().getId(),
                 project.getFrames().stream().map(Frame::getId).toList(),
-                project.getClient().getId()
+                project.getClient() != null ? project.getClient().getId() : null
         );
     }
 

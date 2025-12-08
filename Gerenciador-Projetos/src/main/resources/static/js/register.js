@@ -33,7 +33,6 @@ form.addEventListener('submit', async (event) => {
             setTimeout(() => {
                 window.location.href = '/login'; 
             }, 2000);
-
         } else {
             const errorMessage = await response.text();
             showAlert(errorMessage || 'Erro ao cadastrar usuário.', 'danger', alertPlaceholder);
