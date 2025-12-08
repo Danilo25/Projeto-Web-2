@@ -64,31 +64,16 @@ public class PositionService {
                 .orElseThrow(() -> new RuntimeException("Position not found!"));
 
         if (positionRequest.name() != null) {
-            boolean exists = positionRepository.existsByNameAndLevel(
-                    positionRequest.name(),
-                    position.getLevel()
-            );
-
-            if (exists) {
-                throw new RuntimeException("Conflito: O cargo '" + positionRequest.name() +
-                        "' com nível '" + position.getLevel() + "' já existe.");
-            }
-
             position.setName(positionRequest.name());
         }
 
         if (positionRequest.level() != null) {
-            boolean exists = positionRepository.existsByNameAndLevel(
-                    position.getName(),
-                    positionRequest.level()
-            );
-
-            if (exists) {
-                throw new RuntimeException("Conflito: O cargo '" + position.getName() +
-                        "' com nível '" + positionRequest.level() + "' já existe.");
-            }
-
             position.setLevel(positionRequest.level());
+        }
+
+        boolean exists = positionRepository.existsByNameAndLevel(position.getName(), position.getLevel());
+        if (exists) {
+            throw new RuntimeException("Conflito: O cargo '" + position.getName() + "' com nível '" + position.getLevel() + "' já existe.");
         }
 
         if (positionRequest.description() != null) {

@@ -27,6 +27,10 @@ public class Project {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
+
     @OneToMany(mappedBy = "project")
     private List<Frame> frames;
 

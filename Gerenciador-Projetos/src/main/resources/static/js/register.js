@@ -9,13 +9,13 @@ form.addEventListener('submit', async (event) => {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const position = document.getElementById('position').value;
+    const positionId = document.getElementById('positionSelect').value;
 
     const userData = {
-        name: name,
-        email: email,
-        password: password,
-        position: position
+        name,
+        email,
+        password,
+        positionId: positionId ? Number(positionId) : null
     };
 
     try {
