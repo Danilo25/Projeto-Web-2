@@ -39,14 +39,11 @@ public class PositionService {
     @Transactional
     public PositionResponse createPosition(PositionRequest positionRequest) {
 
-        boolean exists = positionRepository.existsByNameAndLevel(
-                positionRequest.name(),
-                positionRequest.level()
-        );
+        Position existsPosition = positionRepository.findByNameAndLevelAllIgnoreCase(positionRequest.name(),positionRequest.level())
+                .orElse(null);
 
-        if (exists) {
-            throw new RuntimeException("Conflito: O cargo '" + positionRequest.name() +
-                    "' com nível '" + positionRequest.level() + "' já existe.");
+        if (existsPosition != null) {
+            throw new RuntimeException("Conflito: Cargo com o mesmo nome e nível já existe.");
         }
 
         Position position = new Position(
@@ -63,17 +60,19 @@ public class PositionService {
         Position position = positionRepository.findById(positionId)
                 .orElseThrow(() -> new RuntimeException("Position not found!"));
 
+        Position existsPosition = positionRepository.findByNameAndLevelAllIgnoreCase(positionRequest.name(), positionRequest.level())
+                .orElse(null);
+
+        if (existsPosition != null && !existsPosition.getId().equals(positionId)) {
+            throw new RuntimeException("Conflito: Cargo com o mesmo nome e nível já existe.");
+        }
+
         if (positionRequest.name() != null) {
             position.setName(positionRequest.name());
         }
 
         if (positionRequest.level() != null) {
             position.setLevel(positionRequest.level());
-        }
-
-        boolean exists = positionRepository.existsByNameAndLevel(position.getName(), position.getLevel());
-        if (exists) {
-            throw new RuntimeException("Conflito: O cargo '" + position.getName() + "' com nível '" + position.getLevel() + "' já existe.");
         }
 
         if (positionRequest.description() != null) {
